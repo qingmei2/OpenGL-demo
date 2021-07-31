@@ -15,4 +15,13 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <Button
+        android:id="@+id/btn_02"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="2、应用投影和相机视图"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_hello_world" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

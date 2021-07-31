@@ -1,10 +1,10 @@
-package com.github.qingmei2.opengl_demo.a1_hello_world
+package com.github.qingmei2.opengl_demo.a2_matrix
 
 import android.content.Context
 import android.opengl.GLSurfaceView
 import com.github.qingmei2.opengl_demo.a2_matrix.A02MyGLRenderer
 
-class MyGLSurfaceView(context: Context) : GLSurfaceView(context) {
+class A02MyGLSurfaceView(context: Context) : GLSurfaceView(context) {
 
     private val renderer: A02MyGLRenderer
 
