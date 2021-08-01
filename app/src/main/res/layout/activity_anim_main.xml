@@ -10,7 +10,7 @@
         android:id="@+id/btn_01"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="1、基本形状"
+        android:text="1、基本旋转"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

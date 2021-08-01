@@ -1,18 +1,18 @@
-package com.github.qingmei2.opengl_demo.a0_shape
+package com.github.qingmei2.opengl_demo.a_shape
 
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.github.qingmei2.opengl_demo.a0_shape.shapes.Triangle
-import com.github.qingmei2.opengl_demo.a0_shape.shapes.CameraTriangle
-import com.github.qingmei2.opengl_demo.a0_shape.shapes.ColorfulTriangle
-import com.github.qingmei2.opengl_demo.a0_shape.shapes.Square
+import com.github.qingmei2.opengl_demo.a_shape.shapes.Triangle
+import com.github.qingmei2.opengl_demo.a_shape.shapes.CameraTriangle
+import com.github.qingmei2.opengl_demo.a_shape.shapes.ColorfulTriangle
+import com.github.qingmei2.opengl_demo.a_shape.shapes.Square
 
 /**
  * 绘制颜色渐变的三角形
  */
-class ShapeActivity : AppCompatActivity() {
+class ShapeDetailActivity : AppCompatActivity() {
 
     companion object {
 
@@ -24,7 +24,7 @@ class ShapeActivity : AppCompatActivity() {
         val SHAPE_SQUARE = "SHAPE_SQUARE"
 
         fun launch(context: Context, shape: String) {
-            val intent = Intent(context, ShapeActivity::class.java)
+            val intent = Intent(context, ShapeDetailActivity::class.java)
             intent.putExtra(SHAPE_KEY, shape)
             context.startActivity(intent)
         }

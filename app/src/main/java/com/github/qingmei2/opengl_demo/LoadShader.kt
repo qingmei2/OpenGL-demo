@@ -1,4 +1,4 @@
-package com.github.qingmei2.opengl_demo.a0_shape
+package com.github.qingmei2.opengl_demo
 
 import android.opengl.GLES20
 

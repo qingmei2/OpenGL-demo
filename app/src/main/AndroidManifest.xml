@@ -2,7 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.github.qingmei2.opengl_demo">
 
-    <uses-feature android:glEsVersion="0x00020000" android:required="true" />
+    <uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="true" />
 
     <application
         android:allowBackup="true"
@@ -19,7 +21,11 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".a0_shape.ShapeActivity"/>
+        <activity android:name=".a_shape.ShapeMainActivity" />
+        <activity android:name=".a_shape.ShapeDetailActivity" />
+
+        <activity android:name=".b_animation.AnimMainActivity" />
+        <activity android:name=".b_animation.AnimDetailActivity" />
     </application>
 
 </manifest>

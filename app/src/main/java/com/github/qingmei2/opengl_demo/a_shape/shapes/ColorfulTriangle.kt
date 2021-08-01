@@ -1,9 +1,9 @@
-package com.github.qingmei2.opengl_demo.a0_shape.shapes
+package com.github.qingmei2.opengl_demo.a_shape.shapes
 
 import android.opengl.GLES20
 import android.opengl.Matrix
-import com.github.qingmei2.opengl_demo.a0_shape.Shape
-import com.github.qingmei2.opengl_demo.a0_shape.loadShader
+import com.github.qingmei2.opengl_demo.a_shape.Shape
+import com.github.qingmei2.opengl_demo.loadShader
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
@@ -130,8 +130,14 @@ class ColorfulTriangle : Shape {
         this.colorBuffer.put(color)
         this.colorBuffer.position(0)
 
-        val vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode)
-        val fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode)
+        val vertexShader = loadShader(
+            GLES20.GL_VERTEX_SHADER,
+            vertexShaderCode
+        )
+        val fragmentShader = loadShader(
+            GLES20.GL_FRAGMENT_SHADER,
+            fragmentShaderCode
+        )
 
         mProgram = GLES20.glCreateProgram().apply {
             GLES20.glAttachShader(this, vertexShader)
