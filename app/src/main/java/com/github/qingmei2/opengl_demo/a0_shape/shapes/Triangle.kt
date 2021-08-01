@@ -1,11 +1,29 @@
-package com.github.qingmei2.opengl_demo.shape
+package com.github.qingmei2.opengl_demo.a0_shape.shapes
 
 import android.opengl.GLES20
+import com.github.qingmei2.opengl_demo.a0_shape.Shape
+import com.github.qingmei2.opengl_demo.a0_shape.loadShader
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
+import javax.microedition.khronos.egl.EGLConfig
+import javax.microedition.khronos.opengles.GL10
 
-class Triangle2 {
+// number of coordinates per vertex in this array
+const val COORDS_PER_VERTEX = 3
+var triangleCoords = floatArrayOf(     // in counterclockwise order:
+    0.0f, 0.622008459f, 0.0f,      // top
+    -0.5f, -0.311004243f, 0.0f,    // bottom left
+    0.5f, -0.311004243f, 0.0f      // bottom right
+)
+
+class Triangle : Shape {
+
+    private val vertexShaderCode =
+        "attribute vec4 vPosition;" +
+                "void main() {" +
+                "  gl_Position = vPosition;" +
+                "}"
 
     private val fragmentShaderCode =
         "precision mediump float;" +
@@ -14,29 +32,21 @@ class Triangle2 {
                 "  gl_FragColor = vColor;" +
                 "}"
 
-    private val vertexShaderCode =
-    // This matrix member variable provides a hook to manipulate
-        // the coordinates of the objects that use this vertex shader
-        "uniform mat4 uMVPMatrix;" +
-                "attribute vec4 vPosition;" +
-                "void main() {" +
-                // the matrix must be included as a modifier of gl_Position
-                // Note that the uMVPMatrix factor *must be first* in order
-                // for the matrix multiplication product to be correct.
-                "  gl_Position = uMVPMatrix * vPosition;" +
-                "}"
-
-    // Use to access and set the view transformation
-    private var vPMatrixHandle: Int = 0
-
     // Set color with red, green, blue and alpha (opacity) values
     val color = floatArrayOf(0.63671875f, 0.76953125f, 0.22265625f, 1.0f)
 
     private var mProgram: Int
 
     init {
-        val vertexShader: Int = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode)
-        val fragmentShader: Int = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode)
+        val vertexShader: Int = loadShader(
+            GLES20.GL_VERTEX_SHADER,
+            vertexShaderCode
+        )
+        val fragmentShader: Int =
+            loadShader(
+                GLES20.GL_FRAGMENT_SHADER,
+                fragmentShaderCode
+            )
 
         // create empty OpenGL ES Program
         mProgram = GLES20.glCreateProgram().also {
@@ -73,7 +83,7 @@ class Triangle2 {
     private val vertexCount: Int = triangleCoords.size / COORDS_PER_VERTEX
     private val vertexStride: Int = COORDS_PER_VERTEX * 4 // 4 bytes per vertex
 
-    fun draw(mvpMatrix: FloatArray) {
+    fun draw() {
         // Add program to OpenGL ES environment
         GLES20.glUseProgram(mProgram)
 
@@ -99,11 +109,6 @@ class Triangle2 {
                 // Set color for drawing the triangle
                 GLES20.glUniform4fv(colorHandle, 1, color, 0)
             }
-            // get handle to shape's transformation matrix
-            vPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix")
-
-            // Pass the projection and view transformation to the shader
-            GLES20.glUniformMatrix4fv(vPMatrixHandle, 1, false, mvpMatrix, 0)
 
             // Draw the triangle
             GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertexCount)
@@ -111,5 +116,21 @@ class Triangle2 {
             // Disable vertex array
             GLES20.glDisableVertexAttribArray(it)
         }
+    }
+
+    override fun onDrawFrame(gl: GL10?) {
+        // Redraw background color
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+
+        this.draw()
+    }
+
+    override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
+        GLES20.glViewport(0, 0, width, height)
+    }
+
+    override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
+        // Set the background frame color
+        GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f)
     }
 }

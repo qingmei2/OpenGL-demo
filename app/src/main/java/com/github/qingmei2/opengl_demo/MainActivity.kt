@@ -1,12 +1,9 @@
 package com.github.qingmei2.opengl_demo
 
-import android.app.Activity
-import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import com.github.qingmei2.opengl_demo.a1_hello_world.A01Activity
-import com.github.qingmei2.opengl_demo.a2_matrix.A02Activity
+import androidx.appcompat.app.AppCompatActivity
+import com.github.qingmei2.opengl_demo.a0_shape.ShapeActivity
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -14,16 +11,13 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         findViewById<View>(R.id.btn_hello_world).setOnClickListener {
-            navigation(A01Activity::class.java)
+            ShapeActivity.launch(this, ShapeActivity.SHAPE_TRIANGLE)
         }
         findViewById<View>(R.id.btn_02).setOnClickListener {
-            navigation(A02Activity::class.java)
+            ShapeActivity.launch(this, ShapeActivity.SHAPE_TRIANGLE_CAMERA)
         }
-    }
-
-    private fun <T : Activity> navigation(activityClazz: Class<T>) {
-        Intent(this, activityClazz).apply {
-            startActivity(this)
+        findViewById<View>(R.id.btn_03).setOnClickListener {
+            ShapeActivity.launch(this, ShapeActivity.SHAPE_TRIANGLE_COLORFUL)
         }
     }
 }

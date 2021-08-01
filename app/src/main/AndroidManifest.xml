@@ -19,8 +19,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".a1_hello_world.A01Activity"/>
-        <activity android:name=".a2_matrix.A02Activity"/>
+        <activity android:name=".a0_shape.ShapeActivity"/>
     </application>
 
 </manifest>
