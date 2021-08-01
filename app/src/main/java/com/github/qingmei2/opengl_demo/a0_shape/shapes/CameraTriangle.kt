@@ -10,6 +10,9 @@ import java.nio.FloatBuffer
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
+/**
+ * 透视矩阵-三角形
+ */
 class CameraTriangle : Shape {
 
     private val vPMatrix = FloatArray(16)

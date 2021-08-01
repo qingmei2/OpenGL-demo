@@ -17,6 +17,9 @@ var triangleCoords = floatArrayOf(     // in counterclockwise order:
     0.5f, -0.311004243f, 0.0f      // bottom right
 )
 
+/**
+ * 普通三角形
+ */
 class Triangle : Shape {
 
     private val vertexShaderCode =

@@ -19,5 +19,8 @@ class MainActivity : AppCompatActivity() {
         findViewById<View>(R.id.btn_03).setOnClickListener {
             ShapeActivity.launch(this, ShapeActivity.SHAPE_TRIANGLE_COLORFUL)
         }
+        findViewById<View>(R.id.btn_04).setOnClickListener {
+            ShapeActivity.launch(this, ShapeActivity.SHAPE_SQUARE)
+        }
     }
 }

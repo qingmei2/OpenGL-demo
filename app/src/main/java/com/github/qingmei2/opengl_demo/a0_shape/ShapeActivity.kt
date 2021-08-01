@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.github.qingmei2.opengl_demo.a0_shape.shapes.Triangle
 import com.github.qingmei2.opengl_demo.a0_shape.shapes.CameraTriangle
 import com.github.qingmei2.opengl_demo.a0_shape.shapes.ColorfulTriangle
+import com.github.qingmei2.opengl_demo.a0_shape.shapes.Square
 
 /**
  * 绘制颜色渐变的三角形
@@ -20,6 +21,7 @@ class ShapeActivity : AppCompatActivity() {
         val SHAPE_TRIANGLE = "SHAPE_TRIANGLE"
         val SHAPE_TRIANGLE_CAMERA = "SHAPE_TRIANGLE_CAMERA"
         val SHAPE_TRIANGLE_COLORFUL = "SHAPE_TRIANGLE_COLORFUL"
+        val SHAPE_SQUARE = "SHAPE_SQUARE"
 
         fun launch(context: Context, shape: String) {
             val intent = Intent(context, ShapeActivity::class.java)
@@ -42,6 +44,7 @@ class ShapeActivity : AppCompatActivity() {
             SHAPE_TRIANGLE -> Triangle()
             SHAPE_TRIANGLE_CAMERA -> CameraTriangle()
             SHAPE_TRIANGLE_COLORFUL -> ColorfulTriangle()
+            SHAPE_SQUARE -> Square()
             else -> throw IllegalArgumentException("错误的参数 = $shape")
         }
     }
