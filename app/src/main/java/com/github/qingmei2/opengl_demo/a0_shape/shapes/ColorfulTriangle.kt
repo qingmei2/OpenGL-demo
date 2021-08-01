@@ -15,8 +15,8 @@ import javax.microedition.khronos.opengles.GL10
  */
 class ColorfulTriangle : Shape {
 
-    private val vertexBuffer: FloatBuffer
-    private val colorBuffer: FloatBuffer
+    private lateinit var vertexBuffer: FloatBuffer
+    private lateinit var colorBuffer: FloatBuffer
 
     private val COORDS_PER_VERTEX = 3
     private var triangleCoords = floatArrayOf(
@@ -62,30 +62,6 @@ class ColorfulTriangle : Shape {
     //顶点之间的偏移量
     private val vertexStride: Int = COORDS_PER_VERTEX * 4 // 每个顶点四个字节
 
-    // 每个顶点四个字节
-    init {
-        val bb = ByteBuffer.allocateDirect(triangleCoords.size * 4)
-        bb.order(ByteOrder.nativeOrder())
-        this.vertexBuffer = bb.asFloatBuffer()
-        this.vertexBuffer.put(triangleCoords)
-        this.vertexBuffer.position(0)
-
-        val dd = ByteBuffer.allocateDirect(color.size * 4)
-        dd.order(ByteOrder.nativeOrder())
-        this.colorBuffer = dd.asFloatBuffer()
-        this.colorBuffer.put(color)
-        this.colorBuffer.position(0)
-
-        val vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode)
-        val fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode)
-
-        mProgram = GLES20.glCreateProgram().apply {
-            GLES20.glAttachShader(this, vertexShader)
-            GLES20.glAttachShader(this, fragmentShader)
-            GLES20.glLinkProgram(this)
-        }
-    }
-
     override fun onDrawFrame(gl: GL10?) {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
         GLES20.glUseProgram(mProgram)
@@ -127,6 +103,8 @@ class ColorfulTriangle : Shape {
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
+        GLES20.glViewport(0, 0, width, height)
+
         // 计算宽高比
         val ratio = width.toFloat() / height.toFloat()
         // 设置透视投影
@@ -138,6 +116,27 @@ class ColorfulTriangle : Shape {
     }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
+        GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f)
 
+        val bb = ByteBuffer.allocateDirect(triangleCoords.size * 4)
+        bb.order(ByteOrder.nativeOrder())
+        this.vertexBuffer = bb.asFloatBuffer()
+        this.vertexBuffer.put(triangleCoords)
+        this.vertexBuffer.position(0)
+
+        val dd = ByteBuffer.allocateDirect(color.size * 4)
+        dd.order(ByteOrder.nativeOrder())
+        this.colorBuffer = dd.asFloatBuffer()
+        this.colorBuffer.put(color)
+        this.colorBuffer.position(0)
+
+        val vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode)
+        val fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode)
+
+        mProgram = GLES20.glCreateProgram().apply {
+            GLES20.glAttachShader(this, vertexShader)
+            GLES20.glAttachShader(this, fragmentShader)
+            GLES20.glLinkProgram(this)
+        }
     }
 }

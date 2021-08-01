@@ -41,32 +41,7 @@ class CameraTriangle : Shape {
     // Set color with red, green, blue and alpha (opacity) values
     val color = floatArrayOf(0.63671875f, 0.76953125f, 0.22265625f, 1.0f)
 
-    private var mProgram: Int
-
-    init {
-        val vertexShader: Int = loadShader(
-            GLES20.GL_VERTEX_SHADER,
-            vertexShaderCode
-        )
-        val fragmentShader: Int =
-            loadShader(
-                GLES20.GL_FRAGMENT_SHADER,
-                fragmentShaderCode
-            )
-
-        // create empty OpenGL ES Program
-        mProgram = GLES20.glCreateProgram().also {
-
-            // add the vertex shader to program
-            GLES20.glAttachShader(it, vertexShader)
-
-            // add the fragment shader to program
-            GLES20.glAttachShader(it, fragmentShader)
-
-            // creates OpenGL ES program executables
-            GLES20.glLinkProgram(it)
-        }
-    }
+    private var mProgram: Int = 0
 
     private var vertexBuffer: FloatBuffer =
         // (number of coordinate values * 4 bytes per float)
@@ -143,8 +118,6 @@ class CameraTriangle : Shape {
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
-        GLES20.glViewport(0, 0, width, height)
-
         val ratio: Float = width.toFloat() / height.toFloat()
 
         Matrix.frustumM(projectionMatrix, 0, -ratio, ratio, -1f, 1f, 3f, 7f)
@@ -153,5 +126,28 @@ class CameraTriangle : Shape {
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         // Set the background frame color
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f)
+
+        val vertexShader: Int = loadShader(
+            GLES20.GL_VERTEX_SHADER,
+            vertexShaderCode
+        )
+        val fragmentShader: Int =
+            loadShader(
+                GLES20.GL_FRAGMENT_SHADER,
+                fragmentShaderCode
+            )
+
+        // create empty OpenGL ES Program
+        mProgram = GLES20.glCreateProgram().also {
+
+            // add the vertex shader to program
+            GLES20.glAttachShader(it, vertexShader)
+
+            // add the fragment shader to program
+            GLES20.glAttachShader(it, fragmentShader)
+
+            // creates OpenGL ES program executables
+            GLES20.glLinkProgram(it)
+        }
     }
 }

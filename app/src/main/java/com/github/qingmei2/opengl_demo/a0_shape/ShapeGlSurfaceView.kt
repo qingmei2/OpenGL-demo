@@ -14,6 +14,6 @@ class ShapeGlSurfaceView(
 
         // Set the Renderer for drawing on the GLSurfaceView
         setRenderer(shape)
-        renderMode = GLSurfaceView.RENDERMODE_WHEN_DIRTY
+        renderMode = RENDERMODE_WHEN_DIRTY
     }
 }
