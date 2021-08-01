@@ -19,9 +19,9 @@ class ShapeMainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_shape_main)
 
-        findViewById<View>(R.id.btn_hello_world).setOnClickListener {
+        findViewById<View>(R.id.btn_01).setOnClickListener {
             ShapeDetailActivity.launch(this, ShapeDetailActivity.SHAPE_TRIANGLE)
         }
         findViewById<View>(R.id.btn_02).setOnClickListener {

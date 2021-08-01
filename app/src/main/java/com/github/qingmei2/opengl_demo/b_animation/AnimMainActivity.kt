@@ -27,5 +27,8 @@ class AnimMainActivity : AppCompatActivity() {
         findViewById<View>(R.id.btn_02).setOnClickListener {
             AnimDetailActivity.launch(this, AnimDetailActivity.ANIM_ROTATE_Y)
         }
+        findViewById<View>(R.id.btn_03).setOnClickListener {
+            AnimDetailActivity.launch(this, AnimDetailActivity.ANIM_TRANSLATE_X)
+        }
     }
 }
