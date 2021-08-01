@@ -1,10 +1,11 @@
-package com.github.qingmei2.opengl_demo.b_animation
+package com.github.qingmei2.opengl_demo.b_animation.animation
 
 import android.opengl.GLES20
 import android.opengl.Matrix
 import android.os.SystemClock
 import com.github.qingmei2.opengl_demo.a_shape.shapes.COORDS_PER_VERTEX
 import com.github.qingmei2.opengl_demo.a_shape.shapes.triangleCoords
+import com.github.qingmei2.opengl_demo.b_animation.Animation
 import com.github.qingmei2.opengl_demo.loadShader
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -15,7 +16,7 @@ import javax.microedition.khronos.opengles.GL10
 /**
  * 三角形
  */
-class TriangleForAnim : Animation {
+class TriangleRotateY : Animation {
 
     private val vPMatrix = FloatArray(16)
     private val projectionMatrix = FloatArray(16)
@@ -120,7 +121,7 @@ class TriangleForAnim : Animation {
         // 设置旋转矩阵
         val time = SystemClock.uptimeMillis() % 4000L
         val angle = 0.090f * time.toInt()       // 4000 * 0.09 = 360度，每4秒旋转一周
-        Matrix.setRotateM(rotationMatrix, 0, angle, 0f, 0f, -1.0f)
+        Matrix.setRotateM(rotationMatrix, 0, angle, 0f, 1.0f, 0.0f)
 
         // 计算变换矩阵
         Matrix.multiplyMM(scratch, 0, vPMatrix, 0, rotationMatrix, 0)

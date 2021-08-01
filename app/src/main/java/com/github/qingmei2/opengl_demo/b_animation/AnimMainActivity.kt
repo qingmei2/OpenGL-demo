@@ -22,7 +22,10 @@ class AnimMainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_anim_main)
 
         findViewById<View>(R.id.btn_01).setOnClickListener {
-            AnimDetailActivity.launch(this, AnimDetailActivity.ANIM_ROTATE)
+            AnimDetailActivity.launch(this, AnimDetailActivity.ANIM_ROTATE_Z)
+        }
+        findViewById<View>(R.id.btn_02).setOnClickListener {
+            AnimDetailActivity.launch(this, AnimDetailActivity.ANIM_ROTATE_Y)
         }
     }
 }
