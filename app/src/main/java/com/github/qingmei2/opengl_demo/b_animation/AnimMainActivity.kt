@@ -30,5 +30,8 @@ class AnimMainActivity : AppCompatActivity() {
         findViewById<View>(R.id.btn_03).setOnClickListener {
             AnimDetailActivity.launch(this, AnimDetailActivity.ANIM_TRANSLATE_X)
         }
+        findViewById<View>(R.id.btn_04).setOnClickListener {
+            AnimDetailActivity.launch(this, AnimDetailActivity.ANIM_SCALE_X)
+        }
     }
 }

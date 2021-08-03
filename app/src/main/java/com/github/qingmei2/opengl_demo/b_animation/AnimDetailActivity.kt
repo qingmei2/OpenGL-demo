@@ -6,6 +6,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.github.qingmei2.opengl_demo.b_animation.animation.TriangleRotateY
 import com.github.qingmei2.opengl_demo.b_animation.animation.TriangleRotateZ
+import com.github.qingmei2.opengl_demo.b_animation.animation.TriangleScaleX
 import com.github.qingmei2.opengl_demo.b_animation.animation.TriangleTranslateX
 
 class AnimDetailActivity : AppCompatActivity() {
@@ -17,6 +18,7 @@ class AnimDetailActivity : AppCompatActivity() {
         const val ANIM_ROTATE_Z = "ANIM_ROTATE_Z"
         const val ANIM_ROTATE_Y = "ANIM_ROTATE_Y"
         const val ANIM_TRANSLATE_X = "ANIM_TRANSLATE_X"
+        const val ANIM_SCALE_X = "ANIM_SCALE_X"
 
         fun launch(context: Context, anim: String) {
             val intent = Intent(context, AnimDetailActivity::class.java)
@@ -38,6 +40,7 @@ class AnimDetailActivity : AppCompatActivity() {
             ANIM_ROTATE_Z -> TriangleRotateZ()
             ANIM_ROTATE_Y -> TriangleRotateY()
             ANIM_TRANSLATE_X -> TriangleTranslateX()
+            ANIM_SCALE_X -> TriangleScaleX()
             else -> throw IllegalArgumentException("错误的参数 = $animation")
         }
     }
