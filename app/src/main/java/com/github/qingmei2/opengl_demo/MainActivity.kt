@@ -5,6 +5,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.github.qingmei2.opengl_demo.a_shape.ShapeMainActivity
 import com.github.qingmei2.opengl_demo.b_animation.AnimMainActivity
+import com.github.qingmei2.opengl_demo.c_image_process.ImageProcessMainActivity
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -16,6 +17,9 @@ class MainActivity : AppCompatActivity() {
         }
         findViewById<View>(R.id.btn_02).setOnClickListener {
             AnimMainActivity.launch(this)
+        }
+        findViewById<View>(R.id.btn_03).setOnClickListener {
+            ImageProcessMainActivity.launch(this)
         }
     }
 }

@@ -150,16 +150,12 @@ class TriangleTranslateX : Animation {
                 fragmentShaderCode
             )
 
-        // create empty OpenGL ES Program
         mProgram = GLES20.glCreateProgram().also {
 
-            // add the vertex shader to program
             GLES20.glAttachShader(it, vertexShader)
 
-            // add the fragment shader to program
             GLES20.glAttachShader(it, fragmentShader)
 
-            // creates OpenGL ES program executables
             GLES20.glLinkProgram(it)
         }
     }

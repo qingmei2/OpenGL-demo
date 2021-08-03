@@ -26,6 +26,9 @@
 
         <activity android:name=".b_animation.AnimMainActivity" />
         <activity android:name=".b_animation.AnimDetailActivity" />
+
+        <activity android:name=".c_image_process.ImageProcessDetailActivity" />
+        <activity android:name=".c_image_process.ImageProcessMainActivity" />
     </application>
 
 </manifest>
