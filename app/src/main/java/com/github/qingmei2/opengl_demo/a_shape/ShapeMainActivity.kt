@@ -33,5 +33,8 @@ class ShapeMainActivity : AppCompatActivity() {
         findViewById<View>(R.id.btn_04).setOnClickListener {
             ShapeDetailActivity.launch(this, ShapeDetailActivity.SHAPE_SQUARE)
         }
+        findViewById<View>(R.id.btn_05).setOnClickListener {
+            ShapeDetailActivity.launch(this, ShapeDetailActivity.SHAPE_SQUARE_2)
+        }
     }
 }

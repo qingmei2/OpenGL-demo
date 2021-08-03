@@ -118,9 +118,10 @@ class TriangleTranslateX : Animation {
         // 计算变换矩阵
         Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
 
-        // 设置旋转矩阵
-        val time = SystemClock.uptimeMillis() % 4000L
-        val transX = 0.0025f * time.toInt()
+        Matrix.setIdentityM(translateMatrix, 0)
+        // 设置平移矩阵
+        val time = SystemClock.uptimeMillis() % 10000
+        val transX = 0.0001f * time.toInt()
         Matrix.translateM(translateMatrix, 0, transX, 0f, 0f)
 
         // 计算变换矩阵
