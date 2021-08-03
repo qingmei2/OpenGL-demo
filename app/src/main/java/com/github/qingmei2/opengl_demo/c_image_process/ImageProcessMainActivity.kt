@@ -24,5 +24,8 @@ class ImageProcessMainActivity : AppCompatActivity() {
         findViewById<View>(R.id.btn_01).setOnClickListener {
             ImageProcessDetailActivity.launch(this, ImageProcessDetailActivity.IMAGE_PROCESSOR_NONE)
         }
+        findViewById<View>(R.id.btn_02).setOnClickListener {
+            ImageProcessDetailActivity.launch(this, ImageProcessDetailActivity.IMAGE_PROCESSOR_CAMERA)
+        }
     }
 }
