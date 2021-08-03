@@ -16,12 +16,15 @@ import javax.microedition.khronos.opengles.GL10
 /**
  * 三角形
  */
-class TriangleScaleX : Animation {
+class TriangleTransAndScaleAndRotateX : Animation {
 
     private val vPMatrix = FloatArray(16)
     private val projectionMatrix = FloatArray(16)
     private val viewMatrix = FloatArray(16)
+
+    private val translateMatrix = FloatArray(16)
     private val scaleMatrix = FloatArray(16)
+    private val rotationMatrix = FloatArray(16)
 
     private val fragmentShaderCode =
         "precision mediump float;" +
@@ -107,8 +110,6 @@ class TriangleScaleX : Animation {
     }
 
     override fun onDrawFrame(gl: GL10?) {
-        val scratch = FloatArray(16)
-
         // Redraw background color
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
 
@@ -118,23 +119,41 @@ class TriangleScaleX : Animation {
         // 计算变换矩阵
         Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
 
-        // TODO
+        Matrix.setIdentityM(translateMatrix, 0)
+
+        // 设置旋转矩阵
+        val time = SystemClock.uptimeMillis() % 10000L
+        val angle = 0.090f * time.toInt()       // 4000 * 0.09 = 360度，每4秒旋转一周
+        Matrix.setRotateM(rotationMatrix, 0, 0f, 0f, 0f, 1.0f)
+        // TODO 打开下面代码，增加旋转效果，但效果不佳
+//        Matrix.setRotateM(rotationMatrix, 0, angle, 0f, 0f, 1.0f)
+
+        // 计算变换矩阵
+        val scratch1 = FloatArray(16)
+        Matrix.multiplyMM(scratch1, 0, vPMatrix, 0, rotationMatrix, 0)
+
+        // 设置平移矩阵
+        val transX = 0.0001f * time.toInt()
+        Matrix.translateM(translateMatrix, 0, transX, 0f, 0f)
+
+        // 计算变换矩阵
+        val scratch2 = FloatArray(16)
+        Matrix.multiplyMM(scratch2, 0, scratch1, 0, translateMatrix, 0)
+
+        // 设置缩放矩阵
         val baseMatrix = floatArrayOf(
             1f, 0f, 0f, 0f,
             0f, 1f, 0f, 0f,
             0f, 0f, 1f, 0f,
             0f, 0f, 0f, 1f
         )
-
-        // 设置缩放矩阵
-        val time = SystemClock.uptimeMillis() % 10000
         val scaleX = 1f - 0.0001f * time.toInt()
         Matrix.scaleM(scaleMatrix, 0, baseMatrix, 0, scaleX, 1f, 1f)
 
         // 计算变换矩阵
-        Matrix.multiplyMM(scratch, 0, vPMatrix, 0, scaleMatrix, 0)
-
-        this.draw(scratch)
+        val scratch3 = FloatArray(16)
+        Matrix.multiplyMM(scratch3, 0, scratch2, 0, scaleMatrix, 0)
+        this.draw(scratch3)
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {

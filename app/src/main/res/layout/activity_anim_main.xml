@@ -42,4 +42,12 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btn_03" />
 
+    <Button
+        android:id="@+id/btn_05"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="5、综合动画"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_04" />
 </androidx.constraintlayout.widget.ConstraintLayout>
