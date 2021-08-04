@@ -67,8 +67,8 @@ class NoneImageProcessor(private val mResource: Resources) : ImageProcessor {
     override fun onSurfaceCreated(gl: GL10, config: EGLConfig) {
         mProgram = createProgram(
             mResource,
-            "c_image_processor/vertex_shader.sh",
-            "c_image_processor/fragment_shader.sh"
+            "c_image_processor/viewport_vertex_shader.sh",
+            "c_image_processor/viewport_fragment_shader.sh"
         )
 
         avPosition = GLES20.glGetAttribLocation(mProgram, "av_Position")

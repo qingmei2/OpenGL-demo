@@ -19,7 +19,7 @@
         android:id="@+id/btn_02"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="2、图片适配窗口"
+        android:text="2、适配图片-设置窗口"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btn_01" />
@@ -28,7 +28,7 @@
         android:id="@+id/btn_03"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="3、X轴平移"
+        android:text="3、适配图片-正交投影"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btn_02" />

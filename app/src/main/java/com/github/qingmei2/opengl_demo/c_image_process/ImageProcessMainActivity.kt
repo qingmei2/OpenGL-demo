@@ -25,6 +25,9 @@ class ImageProcessMainActivity : AppCompatActivity() {
             ImageProcessDetailActivity.launch(this, ImageProcessDetailActivity.IMAGE_PROCESSOR_NONE)
         }
         findViewById<View>(R.id.btn_02).setOnClickListener {
+            ImageProcessDetailActivity.launch(this, ImageProcessDetailActivity.IMAGE_PROCESSOR_VIEWPORT)
+        }
+        findViewById<View>(R.id.btn_03).setOnClickListener {
             ImageProcessDetailActivity.launch(this, ImageProcessDetailActivity.IMAGE_PROCESSOR_CAMERA)
         }
     }

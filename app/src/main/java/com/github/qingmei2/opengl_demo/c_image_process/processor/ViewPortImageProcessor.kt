@@ -4,7 +4,6 @@ import android.content.res.Resources
 import android.graphics.BitmapFactory
 import android.opengl.GLES20
 import android.opengl.GLUtils
-import android.opengl.Matrix
 import com.github.qingmei2.opengl_demo.R
 import com.github.qingmei2.opengl_demo.c_image_process.ImageProcessor
 import com.github.qingmei2.opengl_demo.createProgram
@@ -15,11 +14,11 @@ import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
 /**
- * 通过设置正交投影，适配图片
+ * 通过调整窗口大小，适配图片
  */
-class CameraImageProcessor(private val mResource: Resources) : ImageProcessor {
+class ViewPortImageProcessor(private val mResource: Resources) : ImageProcessor {
 
-    //顶点坐标
+    // 绘制坐标范围
     private val vertexData = floatArrayOf(
         -1.0f, -1.0f,
         1.0f, -1.0f,
@@ -47,10 +46,6 @@ class CameraImageProcessor(private val mResource: Resources) : ImageProcessor {
     private var mBitmapW: Int = 0
     private var mBitmapH: Int = 0
 
-    private val mViewMatrix = FloatArray(16)
-    private val mProjectMatrix = FloatArray(16)
-    private val mMVPMatrix = FloatArray(16)
-
     init {
         //初始化buffer
         mVertexBuffer = ByteBuffer.allocateDirect(vertexData.size * 4)
@@ -69,8 +64,8 @@ class CameraImageProcessor(private val mResource: Resources) : ImageProcessor {
     override fun onSurfaceCreated(gl: GL10, config: EGLConfig) {
         mProgram = createProgram(
             mResource,
-            "c_image_processor/camera_vertex_shader.sh",
-            "c_image_processor/camera_fragment_shader.sh"
+            "c_image_processor/viewport_vertex_shader.sh",
+            "c_image_processor/viewport_fragment_shader.sh"
         )
 
         avPosition = GLES20.glGetAttribLocation(mProgram, "av_Position")
@@ -92,10 +87,11 @@ class CameraImageProcessor(private val mResource: Resources) : ImageProcessor {
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR)
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR)
 
-        val bitmap = BitmapFactory.decodeResource(mResource, R.drawable.women_h)
 
-        mBitmapW = bitmap.width
-        mBitmapH = bitmap.height
+        val bitmap = BitmapFactory.decodeResource(mResource, R.drawable.women_h)     // 横图
+//        val bitmap = BitmapFactory.decodeResource(mResource, R.drawable.women_v)   // 竖图
+        mBitmapW = bitmap.width / 3
+        mBitmapH = bitmap.height / 3
 
         GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0)
         bitmap.recycle()
@@ -103,28 +99,22 @@ class CameraImageProcessor(private val mResource: Resources) : ImageProcessor {
 
     override fun onSurfaceChanged(gl: GL10, width: Int, height: Int) {
         //设置大小位置
-        GLES20.glViewport(0, 0, width, height)
-
         val screenRatio = width.toFloat() / height.toFloat()
         val bitmapRatio = mBitmapW.toFloat() / mBitmapH.toFloat()
 
-        if (width > height) {
-            if (bitmapRatio > screenRatio) {
-                Matrix.orthoM(mProjectMatrix, 0, -screenRatio * bitmapRatio, screenRatio * bitmapRatio, -1f, 1f, 3f, 5f)
-            } else {
-                Matrix.orthoM(mProjectMatrix, 0, -screenRatio / bitmapRatio, screenRatio / bitmapRatio, -1f, 1f, 3f, 5f)
-            }
-        } else {
-            if (bitmapRatio > screenRatio) {
-                Matrix.orthoM(mProjectMatrix, 0, -1f, 1f, -1 / screenRatio * bitmapRatio, 1 / screenRatio * bitmapRatio, 3f, 5f)
-            } else {
-                Matrix.orthoM(mProjectMatrix, 0, -1f, 1f, -bitmapRatio / screenRatio, bitmapRatio / screenRatio, 3f, 5f)
-            }
+        if (screenRatio < bitmapRatio) {        // 横屏显示，上下留黑边
+            val h = (width / bitmapRatio).toInt()
+            val y = (height - h) / 2
+            val w = width
+            val x = 0
+            GLES20.glViewport(x, y, w, h)
+        } else {                                // 竖屏显示，左右留黑边
+            val w = (height * bitmapRatio).toInt()
+            val x = (width - w) / 2
+            val h = height
+            val y = 0
+            GLES20.glViewport(x, y, w, h)
         }
-        //设置相机位置
-        Matrix.setLookAtM(mViewMatrix, 0, 0f, 0f, 5.0f, 0f, 0f, 0f, 0f, 1.0f, 0.0f)
-        //计算变换矩阵
-        Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0)
     }
 
     override fun onDrawFrame(gl: GL10) {
