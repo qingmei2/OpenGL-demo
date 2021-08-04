@@ -24,7 +24,7 @@ class NoneImageProcessor(private val mResource: Resources) : ImageProcessor {
     )
 
     // 纹理坐标需要和顶点坐标相反
-    // https://blog.csdn.net/jeffasd/article/details/52152670
+    // https://blog.csdn.net/zhangpengzp/article/details/89543108
     private val textureData = floatArrayOf(
         0.0f, 1.0f,
         1.0f, 1.0f,
