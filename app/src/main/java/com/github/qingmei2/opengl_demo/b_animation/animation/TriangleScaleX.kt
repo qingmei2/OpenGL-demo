@@ -118,18 +118,13 @@ class TriangleScaleX : Animation {
         // 计算变换矩阵
         Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
 
-        // TODO
-        val baseMatrix = floatArrayOf(
-            1f, 0f, 0f, 0f,
-            0f, 1f, 0f, 0f,
-            0f, 0f, 1f, 0f,
-            0f, 0f, 0f, 1f
-        )
-
         // 设置缩放矩阵
+        val scaleBaseMatrix = FloatArray(16)
+        Matrix.setIdentityM(scaleBaseMatrix, 0)
+
         val time = SystemClock.uptimeMillis() % 10000
         val scaleX = 1f - 0.0001f * time.toInt()
-        Matrix.scaleM(scaleMatrix, 0, baseMatrix, 0, scaleX, 1f, 1f)
+        Matrix.scaleM(scaleMatrix, 0, scaleBaseMatrix, 0, scaleX, 1f, 1f)
 
         // 计算变换矩阵
         Matrix.multiplyMM(scratch, 0, vPMatrix, 0, scaleMatrix, 0)

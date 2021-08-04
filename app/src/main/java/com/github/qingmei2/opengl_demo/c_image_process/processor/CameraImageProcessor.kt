@@ -15,7 +15,7 @@ import javax.microedition.khronos.opengles.GL10
 
 class CameraImageProcessor(private val mResource: Resources) : ImageProcessor {
 
-    //绘制坐标范围
+    // 绘制坐标范围
     private val vertexData = floatArrayOf(
         -1.0f, -1.0f,
         1.0f, -1.0f,
@@ -23,11 +23,12 @@ class CameraImageProcessor(private val mResource: Resources) : ImageProcessor {
         1.0f, 1.0f
     )
 
+    // 纹理坐标
     private val textureData = floatArrayOf(
-        0f, 1f,
-        1f, 1f,
-        0f, 0f,
-        1f, 0f
+        0.0f, 1.0f,
+        1.0f, 1.0f,
+        0.0f, 0.0f,
+        1.0f, 0.0f
     )
 
     private val mVertexBuffer: FloatBuffer
@@ -83,7 +84,9 @@ class CameraImageProcessor(private val mResource: Resources) : ImageProcessor {
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR)
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR)
 
-        val bitmap = BitmapFactory.decodeResource(mResource, R.drawable.image_dreams)
+
+        val bitmap = BitmapFactory.decodeResource(mResource, R.drawable.women_h)     // 横图
+//        val bitmap = BitmapFactory.decodeResource(mResource, R.drawable.women_v)   // 竖图
         mBitmapW = bitmap.width / 3
         mBitmapH = bitmap.height / 3
 
@@ -97,13 +100,17 @@ class CameraImageProcessor(private val mResource: Resources) : ImageProcessor {
         val bitmapRatio = mBitmapW.toFloat() / mBitmapH.toFloat()
 
         if (screenRatio < bitmapRatio) {        // 横屏显示，上下留黑边
-            val x = 0
-            val y = (height - mBitmapH) / 2
+            val h = (width / bitmapRatio).toInt()
+            val y = (height - h) / 2
             val w = width
-            val h = (height + mBitmapH) / 2
+            val x = 0
             GLES20.glViewport(x, y, w, h)
         } else {                                // 竖屏显示，左右留黑边
-
+            val w = (height * bitmapRatio).toInt()
+            val x = (width - w) / 2
+            val h = height
+            val y = 0
+            GLES20.glViewport(x, y, w, h)
         }
     }
 

@@ -15,7 +15,7 @@ import javax.microedition.khronos.opengles.GL10
 
 class NoneImageProcessor(private val mResource: Resources) : ImageProcessor {
 
-    //绘制坐标范围
+    //顶点坐标
     private val vertexData = floatArrayOf(
         -1.0f, -1.0f,
         1.0f, -1.0f,
@@ -23,19 +23,28 @@ class NoneImageProcessor(private val mResource: Resources) : ImageProcessor {
         1.0f, 1.0f
     )
 
+    // 纹理坐标需要和顶点坐标相反
+    // https://blog.csdn.net/jeffasd/article/details/52152670
     private val textureData = floatArrayOf(
-        0f, 1f,
-        1f, 1f,
-        0f, 0f,
-        1f, 0f
+        0.0f, 1.0f,
+        1.0f, 1.0f,
+        0.0f, 0.0f,
+        1.0f, 0.0f
     )
+
+    // 不相反就会出错 ↓
+//    private val textureData = floatArrayOf(
+//        0.0f, 0.0f,
+//        1.0f, 0.0f,
+//        0.0f, 1.0f,
+//        1.0f, 1.0f
+//    )
 
     private val mVertexBuffer: FloatBuffer
     private val mTextureBuffer: FloatBuffer
 
     private var mProgram: Int = 0
 
-    // TODO
     private var avPosition = 0
     private var afPosition = 0
     private var textureId = 0
@@ -81,7 +90,7 @@ class NoneImageProcessor(private val mResource: Resources) : ImageProcessor {
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR)
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR)
 
-        val bitmap = BitmapFactory.decodeResource(mResource, R.drawable.image_dreams)
+        val bitmap = BitmapFactory.decodeResource(mResource, R.drawable.women_h)
         GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0)
         bitmap.recycle()
     }

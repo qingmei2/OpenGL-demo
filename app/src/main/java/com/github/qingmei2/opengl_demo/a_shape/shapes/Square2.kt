@@ -13,11 +13,11 @@ import javax.microedition.khronos.opengles.GL10
 
 class Square2 : Shape {
 
-    var squareCoords = floatArrayOf(
-        -0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,      // top left
-        -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,     // bottom left
-        0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,     // bottom right
-        0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f     // top right
+    private val squareCoords = floatArrayOf(
+        -0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,      // 左上
+        -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,     // 左下
+        0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,       // 右上
+        0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f       // 右下
     )
 
     private val vertexShaderCode =
@@ -41,11 +41,8 @@ class Square2 : Shape {
 
     private val COORDS_PER_VERTEX = 7
 
-    //顶点个数
-    private val vertexCount: Int = squareCoords.size / COORDS_PER_VERTEX
-
     //顶点之间的偏移量
-    private val vertexStride: Int = COORDS_PER_VERTEX * 4   // 每个顶点四个字节
+    private val vertexStride: Int = COORDS_PER_VERTEX * 4   // 每个顶点四个字节左下
 
     private val mViewMatrix = FloatArray(16)
     private val mProjectMatrix = FloatArray(16)
@@ -56,9 +53,16 @@ class Square2 : Shape {
     private var mColorHandle = 0
 
     private lateinit var vertexBuffer: FloatBuffer
+
+    //******************************* 方式二相关 ↓ *******************************
     private lateinit var indexBuffer: ShortBuffer
 
-    private val index = shortArrayOf(0, 1, 2, 0, 2, 3) // order to draw vertices
+    //顶点个数
+    private val vertexCount: Int = squareCoords.size / COORDS_PER_VERTEX
+
+    //索引法绘制顺序，严格按照右手坐标系绘制2个三角形
+    private val index = shortArrayOf(0, 1, 2, 2, 1, 3) // order to draw vertices
+    //******************************* 方式二相关 ↑ *******************************
 
     override fun onDrawFrame(gl: GL10?) {
         //将程序加入到OpenGLES2.0环境
@@ -100,15 +104,15 @@ class Square2 : Shape {
         )
 
         //绘制正方形
-        // 方式1  TODO
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, squareCoords.size)
+        // 方式1
+//        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4)
         // 方式2
-//        GLES20.glDrawElements(
-//            GLES20.GL_TRIANGLES,
-//            index.size,
-//            GLES20.GL_UNSIGNED_SHORT,
-//            indexBuffer
-//        )
+        GLES20.glDrawElements(
+            GLES20.GL_TRIANGLES,
+            index.size,
+            GLES20.GL_UNSIGNED_SHORT,
+            indexBuffer
+        )
 
         //禁止顶点数组的句柄
         GLES20.glDisableVertexAttribArray(mPositionHandle)

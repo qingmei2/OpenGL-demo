@@ -125,7 +125,7 @@ class TriangleTransAndScaleAndRotateX : Animation {
         val time = SystemClock.uptimeMillis() % 10000L
         val angle = 0.090f * time.toInt()       // 4000 * 0.09 = 360度，每4秒旋转一周
         Matrix.setRotateM(rotationMatrix, 0, 0f, 0f, 0f, 1.0f)
-        // TODO 打开下面代码，增加旋转效果，但效果不佳
+        // 打开下面代码，增加旋转效果，但效果不佳
 //        Matrix.setRotateM(rotationMatrix, 0, angle, 0f, 0f, 1.0f)
 
         // 计算变换矩阵
