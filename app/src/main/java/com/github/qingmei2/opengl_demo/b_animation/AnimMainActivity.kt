@@ -36,5 +36,8 @@ class AnimMainActivity : AppCompatActivity() {
         findViewById<View>(R.id.btn_05).setOnClickListener {
             AnimDetailActivity.launch(this, AnimDetailActivity.ANIM_ALL)
         }
+        findViewById<View>(R.id.btn_06).setOnClickListener {
+            AnimDetailActivity.launch(this, AnimDetailActivity.ANIM_ALL_SNOW_EFFECT)
+        }
     }
 }

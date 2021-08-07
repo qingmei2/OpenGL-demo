@@ -17,6 +17,7 @@ class AnimDetailActivity : AppCompatActivity() {
         const val ANIM_TRANSLATE_X = "ANIM_TRANSLATE_X"
         const val ANIM_SCALE_X = "ANIM_SCALE_X"
         const val ANIM_ALL = "ANIM_ALL"
+        const val ANIM_ALL_SNOW_EFFECT = "ANIM_ALL_SNOW_EFFECT"
 
         fun launch(context: Context, anim: String) {
             val intent = Intent(context, AnimDetailActivity::class.java)
@@ -40,6 +41,7 @@ class AnimDetailActivity : AppCompatActivity() {
             ANIM_TRANSLATE_X -> TriangleTranslateX()
             ANIM_SCALE_X -> TriangleScaleX()
             ANIM_ALL -> TriangleTransAndScaleAndRotateX()
+            ANIM_ALL_SNOW_EFFECT -> TriangleTransAndScaleAndRotateX()
             else -> throw IllegalArgumentException("错误的参数 = $animation")
         }
     }

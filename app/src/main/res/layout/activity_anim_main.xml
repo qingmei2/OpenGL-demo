@@ -50,4 +50,13 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btn_04" />
+
+    <Button
+        android:id="@+id/btn_06"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="6、雪花特效"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_05" />
 </androidx.constraintlayout.widget.ConstraintLayout>
