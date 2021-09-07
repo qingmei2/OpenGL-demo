@@ -14,51 +14,54 @@ import java.nio.FloatBuffer
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
-/**
- * 通过调整窗口大小，适配图片
- */
-class ViewPortImageProcessor(private val mContext: Context) : ImageProcessor {
+class C01ImageProcessor(private val mContext: Context) : ImageProcessor {
 
-    // 绘制坐标范围
+    //顶点坐标
     private val vertexData = floatArrayOf(
-        -1.0f, -1.0f,       // 左下
-        1.0f, -1.0f,        // 右下
-        -1.0f, 1.0f,        // 左上
-        1.0f, 1.0f          // 右上
+        -1.0f, -1.0f,
+        1.0f, -1.0f,
+        -1.0f, 1.0f,
+        1.0f, 1.0f
     )
 
     // 纹理坐标需要和顶点坐标相反
     // https://blog.csdn.net/zhangpengzp/article/details/89543108
     private val textureData = floatArrayOf(
-        0.0f, 1.0f,         // 左上
-        1.0f, 1.0f,         // 右上
-        0.0f, 0.0f,         // 左下
-        1.0f, 0.0f          // 右下
+        0.0f, 1.0f,
+        1.0f, 1.0f,
+        0.0f, 0.0f,
+        1.0f, 0.0f
     )
 
-    private val mVertexBuffer: FloatBuffer = ByteBuffer.allocateDirect(vertexData.size * 4)
-        .order(ByteOrder.nativeOrder())
-        .asFloatBuffer()
-        .put(vertexData)
+    // 不相反就会出错 ↓
+//    private val textureData = floatArrayOf(
+//        0.0f, 0.0f,
+//        1.0f, 0.0f,
+//        0.0f, 1.0f,
+//        1.0f, 1.0f
+//    )
 
-    private val mTextureBuffer: FloatBuffer = ByteBuffer.allocateDirect(textureData.size * 4)
-        .order(ByteOrder.nativeOrder())
-        .asFloatBuffer()
-        .put(textureData)
+    private val mVertexBuffer: FloatBuffer
+    private val mTextureBuffer: FloatBuffer
 
-    // gl程序句柄
     private var mProgram: Int = 0
 
     private var avPosition = 0
     private var afPosition = 0
     private var textureId = 0
 
-    private var mBitmapW: Int = 0
-    private var mBitmapH: Int = 0
-
     init {
         //初始化buffer
+        mVertexBuffer = ByteBuffer.allocateDirect(vertexData.size * 4)
+            .order(ByteOrder.nativeOrder())
+            .asFloatBuffer()
+            .put(vertexData)
         mVertexBuffer.position(0)
+
+        mTextureBuffer = ByteBuffer.allocateDirect(textureData.size * 4)
+            .order(ByteOrder.nativeOrder())
+            .asFloatBuffer()
+            .put(textureData)
         mTextureBuffer.position(0)
     }
 
@@ -88,34 +91,14 @@ class ViewPortImageProcessor(private val mContext: Context) : ImageProcessor {
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR)
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR)
 
-
-        val bitmap = BitmapFactory.decodeResource(mContext.resources, R.drawable.women_h)     // 横图
-//        val bitmap = BitmapFactory.decodeResource(mResource, R.drawable.women_v)   // 竖图
-        mBitmapW = bitmap.width / 3
-        mBitmapH = bitmap.height / 3
-
+        val bitmap = BitmapFactory.decodeResource(mContext.resources, R.drawable.women_h)
         GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0)
         bitmap.recycle()
     }
 
     override fun onSurfaceChanged(gl: GL10, width: Int, height: Int) {
         //设置大小位置
-        val screenRatio = width.toFloat() / height.toFloat()
-        val bitmapRatio = mBitmapW.toFloat() / mBitmapH.toFloat()
-
-        if (screenRatio < bitmapRatio) {        // 横屏显示，上下留黑边
-            val h = (width / bitmapRatio).toInt()
-            val y = (height - h) / 2
-            val w = width
-            val x = 0
-            GLES20.glViewport(x, y, w, h)
-        } else {                                // 竖屏显示，左右留黑边
-            val w = (height * bitmapRatio).toInt()
-            val x = (width - w) / 2
-            val h = height
-            val y = 0
-            GLES20.glViewport(x, y, w, h)
-        }
+        GLES20.glViewport(0, 0, width, height)
     }
 
     override fun onDrawFrame(gl: GL10) {

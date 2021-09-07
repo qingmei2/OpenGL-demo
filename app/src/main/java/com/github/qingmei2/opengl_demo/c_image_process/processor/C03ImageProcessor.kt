@@ -1,7 +1,6 @@
 package com.github.qingmei2.opengl_demo.c_image_process.processor
 
 import android.content.Context
-import android.content.res.Resources
 import android.graphics.BitmapFactory
 import android.opengl.GLES20
 import android.opengl.GLUtils
@@ -14,54 +13,53 @@ import java.nio.FloatBuffer
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
-class NoneImageProcessor(private val mContext: Context) : ImageProcessor {
+class C03ImageProcessor(private val mContext: Context) : ImageProcessor {
 
-    //顶点坐标
+    // 顶点坐标
     private val vertexData = floatArrayOf(
-        -1.0f, -1.0f,
-        1.0f, -1.0f,
-        -1.0f, 1.0f,
-        1.0f, 1.0f
+        -1.0f, -1.0f,       // 左下
+        1.0f, -1.0f,        // 右下
+        -1.0f, 1.0f,        // 左上
+        1.0f, 1.0f          // 右上
     )
 
-    // 纹理坐标需要和顶点坐标相反
-    // https://blog.csdn.net/zhangpengzp/article/details/89543108
+    // 纹理旋转，可以直接通过定义顶点顺序来实现
+    // https://blog.csdn.net/zhangpengzp/article/details/89634640
     private val textureData = floatArrayOf(
-        0.0f, 1.0f,
-        1.0f, 1.0f,
-        0.0f, 0.0f,
-        1.0f, 0.0f
+        1.0f, 1.0f,         // 右上
+        1.0f, 0.0f,         // 右下
+        0.0f, 1.0f,         // 左上
+        0.0f, 0.0f          // 左下
     )
 
-    // 不相反就会出错 ↓
-//    private val textureData = floatArrayOf(
-//        0.0f, 0.0f,
-//        1.0f, 0.0f,
-//        0.0f, 1.0f,
-//        1.0f, 1.0f
-//    )
+    private val mVertexBuffer: FloatBuffer = ByteBuffer.allocateDirect(vertexData.size * 4)
+        .order(ByteOrder.nativeOrder())
+        .asFloatBuffer()
+        .put(vertexData)
 
-    private val mVertexBuffer: FloatBuffer
-    private val mTextureBuffer: FloatBuffer
+    private val mTextureBuffer: FloatBuffer = ByteBuffer.allocateDirect(textureData.size * 4)
+        .order(ByteOrder.nativeOrder())
+        .asFloatBuffer()
+        .put(textureData)
 
+    // gl程序句柄
     private var mProgram: Int = 0
 
+    // 顶点坐标句柄
     private var avPosition = 0
+
+    // 纹理坐标句柄
     private var afPosition = 0
+
+    // 纹理ID
     private var textureId = 0
+
+    private var mBitmapW: Int = 0
+    private var mBitmapH: Int = 0
 
     init {
         //初始化buffer
-        mVertexBuffer = ByteBuffer.allocateDirect(vertexData.size * 4)
-            .order(ByteOrder.nativeOrder())
-            .asFloatBuffer()
-            .put(vertexData)
         mVertexBuffer.position(0)
-
-        mTextureBuffer = ByteBuffer.allocateDirect(textureData.size * 4)
-            .order(ByteOrder.nativeOrder())
-            .asFloatBuffer()
-            .put(textureData)
         mTextureBuffer.position(0)
     }
 
@@ -92,6 +90,10 @@ class NoneImageProcessor(private val mContext: Context) : ImageProcessor {
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR)
 
         val bitmap = BitmapFactory.decodeResource(mContext.resources, R.drawable.women_h)
+
+        mBitmapW = bitmap.width
+        mBitmapH = bitmap.height
+
         GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0)
         bitmap.recycle()
     }
@@ -99,6 +101,9 @@ class NoneImageProcessor(private val mContext: Context) : ImageProcessor {
     override fun onSurfaceChanged(gl: GL10, width: Int, height: Int) {
         //设置大小位置
         GLES20.glViewport(0, 0, width, height)
+
+        val screenRatio = width.toFloat() / height.toFloat()
+        val bitmapRatio = mBitmapW.toFloat() / mBitmapH.toFloat()
     }
 
     override fun onDrawFrame(gl: GL10) {
@@ -110,14 +115,11 @@ class NoneImageProcessor(private val mContext: Context) : ImageProcessor {
         //使用program
         GLES20.glUseProgram(mProgram)
 
-        //设置为可用的状态
+        //设置顶点
         GLES20.glEnableVertexAttribArray(avPosition)
-        //size 指定每个顶点属性的组件数量。必须为1、2、3或者4。初始值为4。（如position是由3个（x,y,z）组成，而颜色是4个（r,g,b,a））
-        //stride 指定连续顶点属性之间的偏移量。如果为0，那么顶点属性会被理解为：它们是紧密排列在一起的。初始值为0。
-        //size 2 代表(x,y)，stride 8 代表跨度 （2个点为一组，2个float有8个字节）
         GLES20.glVertexAttribPointer(avPosition, 2, GLES20.GL_FLOAT, false, 8, mVertexBuffer)
 
-        GLES20.glEnableVertexAttribArray(afPosition);
+        GLES20.glEnableVertexAttribArray(afPosition)
         GLES20.glVertexAttribPointer(afPosition, 2, GLES20.GL_FLOAT, false, 8, mTextureBuffer)
 
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);

@@ -1,4 +1,5 @@
 precision mediump float;
+// 纹理坐标
 varying vec2 v_texPo;
 uniform sampler2D sTexture;
 void main() {

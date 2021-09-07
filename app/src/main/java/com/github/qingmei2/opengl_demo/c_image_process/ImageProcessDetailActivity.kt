@@ -4,9 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.github.qingmei2.opengl_demo.c_image_process.processor.CameraImageProcessor
-import com.github.qingmei2.opengl_demo.c_image_process.processor.ViewPortImageProcessor
-import com.github.qingmei2.opengl_demo.c_image_process.processor.NoneImageProcessor
+import com.github.qingmei2.opengl_demo.c_image_process.processor.C03ImageProcessor
+import com.github.qingmei2.opengl_demo.c_image_process.processor.C02ImageProcessor
+import com.github.qingmei2.opengl_demo.c_image_process.processor.C01ImageProcessor
 
 class ImageProcessDetailActivity : AppCompatActivity() {
 
@@ -16,7 +16,7 @@ class ImageProcessDetailActivity : AppCompatActivity() {
 
         const val IMAGE_PROCESSOR_NONE = "IMAGE_PROCESSOR_NONE"
         const val IMAGE_PROCESSOR_VIEWPORT = "IMAGE_PROCESSOR_VIEWPORT"
-        const val IMAGE_PROCESSOR_CAMERA = "IMAGE_PROCESSOR_CAMERA"
+        const val IMAGE_PROCESSOR_ROTATE = "IMAGE_PROCESSOR_ROTATE"
 
         fun launch(context: Context, anim: String) {
             val intent = Intent(context, ImageProcessDetailActivity::class.java)
@@ -35,9 +35,9 @@ class ImageProcessDetailActivity : AppCompatActivity() {
     private fun getImageProcessor(): ImageProcessor {
         val imageProcessor = intent.getStringExtra(IMAGE_PROCESSOR_KEY)
         return when (imageProcessor) {
-            IMAGE_PROCESSOR_NONE -> NoneImageProcessor(this)
-            IMAGE_PROCESSOR_VIEWPORT -> ViewPortImageProcessor(this)
-            IMAGE_PROCESSOR_CAMERA -> CameraImageProcessor(this)
+            IMAGE_PROCESSOR_NONE -> C01ImageProcessor(this)
+            IMAGE_PROCESSOR_VIEWPORT -> C02ImageProcessor(this)
+            IMAGE_PROCESSOR_ROTATE -> C03ImageProcessor(this)
             else -> throw IllegalArgumentException("错误的参数 = $imageProcessor")
         }
     }
