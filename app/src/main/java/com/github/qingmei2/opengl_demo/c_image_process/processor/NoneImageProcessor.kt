@@ -1,19 +1,20 @@
 package com.github.qingmei2.opengl_demo.c_image_process.processor
 
+import android.content.Context
 import android.content.res.Resources
 import android.graphics.BitmapFactory
 import android.opengl.GLES20
 import android.opengl.GLUtils
 import com.github.qingmei2.opengl_demo.R
 import com.github.qingmei2.opengl_demo.c_image_process.ImageProcessor
-import com.github.qingmei2.opengl_demo.createProgram
+import com.github.qingmei2.opengl_demo.loadShaderWithResource
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
-class NoneImageProcessor(private val mResource: Resources) : ImageProcessor {
+class NoneImageProcessor(private val mContext: Context) : ImageProcessor {
 
     //顶点坐标
     private val vertexData = floatArrayOf(
@@ -65,10 +66,10 @@ class NoneImageProcessor(private val mResource: Resources) : ImageProcessor {
     }
 
     override fun onSurfaceCreated(gl: GL10, config: EGLConfig) {
-        mProgram = createProgram(
-            mResource,
-            "c_image_processor/viewport_vertex_shader.sh",
-            "c_image_processor/viewport_fragment_shader.sh"
+        mProgram = loadShaderWithResource(
+            mContext,
+            R.raw.viewport_vertex_shader,
+            R.raw.viewport_fragment_shader
         )
 
         avPosition = GLES20.glGetAttribLocation(mProgram, "av_Position")
@@ -90,7 +91,7 @@ class NoneImageProcessor(private val mResource: Resources) : ImageProcessor {
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR)
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR)
 
-        val bitmap = BitmapFactory.decodeResource(mResource, R.drawable.women_h)
+        val bitmap = BitmapFactory.decodeResource(mContext.resources, R.drawable.women_h)
         GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0)
         bitmap.recycle()
     }

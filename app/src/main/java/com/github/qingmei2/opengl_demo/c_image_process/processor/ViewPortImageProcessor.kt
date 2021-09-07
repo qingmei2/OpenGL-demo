@@ -1,12 +1,13 @@
 package com.github.qingmei2.opengl_demo.c_image_process.processor
 
+import android.content.Context
 import android.content.res.Resources
 import android.graphics.BitmapFactory
 import android.opengl.GLES20
 import android.opengl.GLUtils
 import com.github.qingmei2.opengl_demo.R
 import com.github.qingmei2.opengl_demo.c_image_process.ImageProcessor
-import com.github.qingmei2.opengl_demo.createProgram
+import com.github.qingmei2.opengl_demo.loadShaderWithResource
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
@@ -16,27 +17,36 @@ import javax.microedition.khronos.opengles.GL10
 /**
  * 通过调整窗口大小，适配图片
  */
-class ViewPortImageProcessor(private val mResource: Resources) : ImageProcessor {
+class ViewPortImageProcessor(private val mContext: Context) : ImageProcessor {
 
     // 绘制坐标范围
     private val vertexData = floatArrayOf(
-        -1.0f, -1.0f,
-        1.0f, -1.0f,
-        -1.0f, 1.0f,
-        1.0f, 1.0f
+        -1.0f, -1.0f,       // 左下
+        1.0f, -1.0f,        // 右下
+        -1.0f, 1.0f,        // 左上
+        1.0f, 1.0f          // 右上
     )
 
-    // 纹理坐标
+    // 纹理坐标需要和顶点坐标相反
+    // https://blog.csdn.net/zhangpengzp/article/details/89543108
     private val textureData = floatArrayOf(
-        0.0f, 1.0f,
-        1.0f, 1.0f,
-        0.0f, 0.0f,
-        1.0f, 0.0f
+        0.0f, 1.0f,         // 左上
+        1.0f, 1.0f,         // 右上
+        0.0f, 0.0f,         // 左下
+        1.0f, 0.0f          // 右下
     )
 
-    private val mVertexBuffer: FloatBuffer
-    private val mTextureBuffer: FloatBuffer
+    private val mVertexBuffer: FloatBuffer = ByteBuffer.allocateDirect(vertexData.size * 4)
+        .order(ByteOrder.nativeOrder())
+        .asFloatBuffer()
+        .put(vertexData)
 
+    private val mTextureBuffer: FloatBuffer = ByteBuffer.allocateDirect(textureData.size * 4)
+        .order(ByteOrder.nativeOrder())
+        .asFloatBuffer()
+        .put(textureData)
+
+    // gl程序句柄
     private var mProgram: Int = 0
 
     private var avPosition = 0
@@ -48,24 +58,15 @@ class ViewPortImageProcessor(private val mResource: Resources) : ImageProcessor 
 
     init {
         //初始化buffer
-        mVertexBuffer = ByteBuffer.allocateDirect(vertexData.size * 4)
-            .order(ByteOrder.nativeOrder())
-            .asFloatBuffer()
-            .put(vertexData)
         mVertexBuffer.position(0)
-
-        mTextureBuffer = ByteBuffer.allocateDirect(textureData.size * 4)
-            .order(ByteOrder.nativeOrder())
-            .asFloatBuffer()
-            .put(textureData)
         mTextureBuffer.position(0)
     }
 
     override fun onSurfaceCreated(gl: GL10, config: EGLConfig) {
-        mProgram = createProgram(
-            mResource,
-            "c_image_processor/viewport_vertex_shader.sh",
-            "c_image_processor/viewport_fragment_shader.sh"
+        mProgram = loadShaderWithResource(
+            mContext,
+            R.raw.viewport_vertex_shader,
+            R.raw.viewport_fragment_shader
         )
 
         avPosition = GLES20.glGetAttribLocation(mProgram, "av_Position")
@@ -88,7 +89,7 @@ class ViewPortImageProcessor(private val mResource: Resources) : ImageProcessor 
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR)
 
 
-        val bitmap = BitmapFactory.decodeResource(mResource, R.drawable.women_h)     // 横图
+        val bitmap = BitmapFactory.decodeResource(mContext.resources, R.drawable.women_h)     // 横图
 //        val bitmap = BitmapFactory.decodeResource(mResource, R.drawable.women_v)   // 竖图
         mBitmapW = bitmap.width / 3
         mBitmapH = bitmap.height / 3

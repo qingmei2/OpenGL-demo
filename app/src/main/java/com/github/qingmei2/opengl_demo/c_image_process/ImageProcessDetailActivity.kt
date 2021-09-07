@@ -35,9 +35,9 @@ class ImageProcessDetailActivity : AppCompatActivity() {
     private fun getImageProcessor(): ImageProcessor {
         val imageProcessor = intent.getStringExtra(IMAGE_PROCESSOR_KEY)
         return when (imageProcessor) {
-            IMAGE_PROCESSOR_NONE -> NoneImageProcessor(resources)
-            IMAGE_PROCESSOR_VIEWPORT -> ViewPortImageProcessor(resources)
-            IMAGE_PROCESSOR_CAMERA -> CameraImageProcessor(resources)
+            IMAGE_PROCESSOR_NONE -> NoneImageProcessor(this)
+            IMAGE_PROCESSOR_VIEWPORT -> ViewPortImageProcessor(this)
+            IMAGE_PROCESSOR_CAMERA -> CameraImageProcessor(this)
             else -> throw IllegalArgumentException("错误的参数 = $imageProcessor")
         }
     }
