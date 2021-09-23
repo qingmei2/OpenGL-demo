@@ -33,5 +33,8 @@ class ImageProcessMainActivity : AppCompatActivity() {
         findViewById<View>(R.id.btn_04).setOnClickListener {
             ImageProcessDetailActivity.launch(this, ImageProcessDetailActivity.IMAGE_PROCESSOR_ROTATE_MATRIX)
         }
+        findViewById<View>(R.id.btn_05).setOnClickListener {
+            ImageProcessDetailActivity.launch(this, ImageProcessDetailActivity.IMAGE_PROCESSOR_VIEWPORT_MATRIX)
+        }
     }
 }
