@@ -152,8 +152,6 @@ class Rectangle2 : Shape {
     //顶点之间的偏移量
     private val vertexStride: Int = COORDS_PER_VERTEX * 4   // 每个顶点四个字节左下
 
-    private val mProjectMatrix = FloatArray(16)
-
     private var mBackgroundM = FloatArray(16)
     private var mWatermarkM = FloatArray(16)
     private var mLyricM = FloatArray(16)
@@ -170,54 +168,47 @@ class Rectangle2 : Shape {
         //计算宽高比
         val isVertical = width < height
         val ratio = width.toFloat() / height.toFloat()
-        // 设置背景的矩阵
-        Matrix.orthoM(mBackgroundM, 0, -1f, 1f, -1f, 1f, -1f, 1f)
+
+        // 根据横竖屏，设置场景
+        val projectM = FloatArray(16)
+        if (isVertical) {
+            Matrix.orthoM(projectM, 0, -1f, 1f, -1f / ratio, 1f / ratio, -1f, 1f)
+        } else {
+            Matrix.orthoM(projectM, 0, -ratio, ratio, -1f, 1f, -1f, 1f)
+        }
+
+        // 设置背景的变换矩阵
+        val backgroundS = FloatArray(16)
+        val backgroundM = FloatArray(16)
+        Matrix.setIdentityM(backgroundS, 0)
+        if (isVertical) {
+            Matrix.scaleM(backgroundS, 0, 1f, 1f / ratio, 1f)
+        } else {
+            Matrix.scaleM(backgroundS, 0, ratio, 1f, 1f)
+        }
+        Matrix.multiplyMM(backgroundM, 0, projectM, 0, backgroundS, 0)
+        mBackgroundM = backgroundM
 
         // 设置水印的变换矩阵
-        val watermarkProjectM = FloatArray(16)
-        val watermarkScaleM = FloatArray(16)
-        val watermarkTransM = FloatArray(16)
-        val scratchScale = FloatArray(16)
-        val scratchTrans = FloatArray(16)
+        val watermarkTS = FloatArray(16)
+        val watermarkM = FloatArray(16)
 
-        if (isVertical) {
-            Matrix.orthoM(watermarkProjectM, 0, -1f, 1f, -1f / ratio, 1f / ratio, -1f, 1f)
-        } else {
-            Matrix.orthoM(watermarkProjectM, 0, -ratio, ratio, -1f, 1f, -1f, 1f)
-        }
+        Matrix.setIdentityM(watermarkTS, 0)
+        Matrix.translateM(watermarkTS, 0, 0.65f, 1.4f, 0f)
+        Matrix.scaleM(watermarkTS, 0, 0.25f, 0.15f, 1f)
 
-        Matrix.setIdentityM(watermarkScaleM, 0)
-        Matrix.scaleM(watermarkScaleM, 0, 0.25f, 0.15f, 1f)
-        Matrix.multiplyMM(scratchScale, 0, watermarkProjectM, 0, watermarkScaleM, 0)
-
-        Matrix.setIdentityM(watermarkTransM, 0)
-        Matrix.translateM(watermarkTransM, 0, 0.65f, 0.80f, 0f)
-        Matrix.multiplyMM(scratchTrans, 0, watermarkTransM,0, scratchScale, 0)
-
-        mWatermarkM = scratchTrans
+        Matrix.multiplyMM(watermarkM, 0, projectM, 0, watermarkTS, 0)
+        mWatermarkM = watermarkM
 
         // 设置歌词的变换矩阵
-        val lrcProjectM = FloatArray(16)
-        val lrcScaleM = FloatArray(16)
-        val lrcTransM = FloatArray(16)
-        val lrcScale = FloatArray(16)
-        val lrcTrans = FloatArray(16)
+        val lrcTS = FloatArray(16)
+        val lrcM = FloatArray(16)
 
-        if (isVertical) {
-            Matrix.orthoM(lrcProjectM, 0, -1f, 1f, -1f / ratio, 1f / ratio, -1f, 1f)
-        } else {
-            Matrix.orthoM(lrcProjectM, 0, -ratio, ratio, -1f, 1f, -1f, 1f)
-        }
-
-        Matrix.setIdentityM(lrcScaleM, 0)
-        Matrix.scaleM(lrcScaleM, 0, 0.85f, 0.10f, 1f)
-        Matrix.multiplyMM(lrcScale, 0, lrcProjectM, 0, lrcScaleM, 0)
-
-        Matrix.setIdentityM(lrcTransM, 0)
-        Matrix.translateM(lrcTransM, 0, 0f, -14f, 0f)
-        Matrix.multiplyMM(lrcTrans, 0, lrcScale, 0, lrcTransM, 0)
-
-        mLyricM = lrcTrans
+        Matrix.setIdentityM(lrcTS, 0)
+        Matrix.translateM(lrcTS, 0, 0f, -1.4f, 0f)      // 2.平移
+        Matrix.scaleM(lrcTS, 0, 0.85f, 0.10f, 1f)       // 1.缩放
+        Matrix.multiplyMM(lrcM, 0, projectM, 0, lrcTS, 0)  // 3.正交投影
+        mLyricM = lrcM
     }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
@@ -246,11 +237,6 @@ class Rectangle2 : Shape {
     override fun onDrawFrame(gl: GL10?) {
         //将程序加入到OpenGLES2.0环境
         GLES20.glUseProgram(mProgram)
-
-        //获取变换矩阵vMatrix成员句柄
-        mMatrixHandle = GLES20.glGetUniformLocation(mProgram, "vMatrix")
-        //指定vMatrix的值
-        GLES20.glUniformMatrix4fv(mMatrixHandle, 1, false, mProjectMatrix, 0)
 
         //顶点着色器vPosition句柄
         mPositionHandle = GLES20.glGetAttribLocation(mProgram, "vPosition")
