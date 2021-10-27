@@ -59,4 +59,13 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btn_05" />
+
+    <Button
+        android:id="@+id/btn_07"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="7、多个矩形组合-矩阵运算"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_06" />
 </androidx.constraintlayout.widget.ConstraintLayout>
