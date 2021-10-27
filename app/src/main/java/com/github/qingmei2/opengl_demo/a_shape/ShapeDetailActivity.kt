@@ -20,6 +20,7 @@ class ShapeDetailActivity : AppCompatActivity() {
         val SHAPE_TRIANGLE_COLORFUL = "SHAPE_TRIANGLE_COLORFUL"
         val SHAPE_SQUARE = "SHAPE_SQUARE"
         val SHAPE_SQUARE_2 = "SHAPE_SQUARE2"
+        val SHAPE_RECTANGLE = "SHAPE_RECTANGLE"
 
         fun launch(context: Context, shape: String) {
             val intent = Intent(context, ShapeDetailActivity::class.java)
@@ -44,6 +45,7 @@ class ShapeDetailActivity : AppCompatActivity() {
             SHAPE_TRIANGLE_COLORFUL -> ColorfulTriangle()
             SHAPE_SQUARE -> Square()
             SHAPE_SQUARE_2 -> Square2()
+            SHAPE_RECTANGLE -> Rectangle()
             else -> throw IllegalArgumentException("错误的参数 = $shape")
         }
     }
