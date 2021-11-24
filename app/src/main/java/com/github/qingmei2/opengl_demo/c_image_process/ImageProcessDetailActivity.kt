@@ -41,7 +41,7 @@ class ImageProcessDetailActivity : AppCompatActivity() {
             IMAGE_PROCESSOR_ROTATE -> C03ImageProcessor(this)
             IMAGE_PROCESSOR_ROTATE_MATRIX -> C04ImageProcessor(this)
             IMAGE_PROCESSOR_VIEWPORT_MATRIX -> C05ImageProcessor(this)
-            IMAGE_PROCESSOR_3D -> C05ImageProcessor(this)
+            IMAGE_PROCESSOR_3D -> C06Image3DProcessor(this)
             else -> throw IllegalArgumentException("错误的参数 = $imageProcessor")
         }
     }
