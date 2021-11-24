@@ -36,5 +36,8 @@ class ImageProcessMainActivity : AppCompatActivity() {
         findViewById<View>(R.id.btn_05).setOnClickListener {
             ImageProcessDetailActivity.launch(this, ImageProcessDetailActivity.IMAGE_PROCESSOR_VIEWPORT_MATRIX)
         }
+        findViewById<View>(R.id.btn_06).setOnClickListener {
+            ImageProcessDetailActivity.launch(this, ImageProcessDetailActivity.IMAGE_PROCESSOR_3D)
+        }
     }
 }

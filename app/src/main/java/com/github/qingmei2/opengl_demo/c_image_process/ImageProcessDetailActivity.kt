@@ -17,6 +17,7 @@ class ImageProcessDetailActivity : AppCompatActivity() {
         const val IMAGE_PROCESSOR_VIEWPORT_MATRIX = "IMAGE_PROCESSOR_VIEWPORT_MATRIX"
         const val IMAGE_PROCESSOR_ROTATE = "IMAGE_PROCESSOR_ROTATE"
         const val IMAGE_PROCESSOR_ROTATE_MATRIX = "IMAGE_PROCESSOR_ROTATE_MATRIX"
+        const val IMAGE_PROCESSOR_3D = "IMAGE_PROCESSOR_3D"
 
         fun launch(context: Context, anim: String) {
             val intent = Intent(context, ImageProcessDetailActivity::class.java)
@@ -40,6 +41,7 @@ class ImageProcessDetailActivity : AppCompatActivity() {
             IMAGE_PROCESSOR_ROTATE -> C03ImageProcessor(this)
             IMAGE_PROCESSOR_ROTATE_MATRIX -> C04ImageProcessor(this)
             IMAGE_PROCESSOR_VIEWPORT_MATRIX -> C05ImageProcessor(this)
+            IMAGE_PROCESSOR_3D -> C05ImageProcessor(this)
             else -> throw IllegalArgumentException("错误的参数 = $imageProcessor")
         }
     }
