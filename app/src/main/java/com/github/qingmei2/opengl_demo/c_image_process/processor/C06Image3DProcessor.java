@@ -95,14 +95,16 @@ public class C06Image3DProcessor implements ImageProcessor {
 
         int[] textureIds = new int[3];
         GLES20.glGenTextures(3, textureIds, 0);
-
         if (textureIds[0] == 0 || textureIds[1] == 0 || textureIds[2] == 0) {
             return;
         }
-
         mBackTextureId = textureIds[0];
         mMidTextureId = textureIds[1];
         mFrontTextureId = textureIds[2];
+
+        this.texImageInner(R.drawable.bg_3d_back, mBackTextureId);
+        this.texImageInner(R.drawable.bg_3d_mid, mMidTextureId);
+        this.texImageInner(R.drawable.bg_3d_fore, mFrontTextureId);
     }
 
     @Override
@@ -118,24 +120,12 @@ public class C06Image3DProcessor implements ImageProcessor {
 
         GLES20.glUseProgram(mProgram);
 
-        drawBack();
-        drawMid();
-        drawFront();
+        this.drawLayerInner(mBackTextureId);
+        this.drawLayerInner(mMidTextureId);
+        this.drawLayerInner(mFrontTextureId);
     }
 
-    private void drawBack() {
-        this.drawLayerInner(R.drawable.bg_3d_back, mBackTextureId);
-    }
-
-    private void drawMid() {
-        this.drawLayerInner(R.drawable.bg_3d_mid, mMidTextureId);
-    }
-
-    private void drawFront() {
-        this.drawLayerInner(R.drawable.bg_3d_fore, mFrontTextureId);
-    }
-
-    private void drawLayerInner(@DrawableRes int drawableRes, int textureId) {
+    private void texImageInner(@DrawableRes int drawableRes, int textureId) {
         //绑定纹理
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
         //环绕方式
@@ -151,6 +141,11 @@ public class C06Image3DProcessor implements ImageProcessor {
         Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(), drawableRes);
         GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
         bitmap.recycle();
+    }
+
+    private void drawLayerInner(int textureId) {
+        //绑定纹理
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
 
         final float[] projection = new float[16];
         Matrix.setIdentityM(projection, 0);
