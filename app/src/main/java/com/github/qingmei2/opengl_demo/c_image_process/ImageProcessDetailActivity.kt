@@ -3,8 +3,13 @@ package com.github.qingmei2.opengl_demo.c_image_process
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.Window
+import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import com.github.qingmei2.opengl_demo.c_image_process.processor.*
+import android.os.Build
+import android.view.View
+
 
 class ImageProcessDetailActivity : AppCompatActivity() {
 
@@ -41,8 +46,38 @@ class ImageProcessDetailActivity : AppCompatActivity() {
             IMAGE_PROCESSOR_ROTATE -> C03ImageProcessor(this)
             IMAGE_PROCESSOR_ROTATE_MATRIX -> C04ImageProcessor(this)
             IMAGE_PROCESSOR_VIEWPORT_MATRIX -> C05ImageProcessor(this)
-            IMAGE_PROCESSOR_3D -> C06Image3DProcessor(this)
+            IMAGE_PROCESSOR_3D ->  {
+                hideActionStatusBar()
+                hideBottomStatusBar()
+                C06Image3DProcessor(this)
+            }
             else -> throw IllegalArgumentException("错误的参数 = $imageProcessor")
         }
+    }
+
+    /**
+     * 隐藏ActionBar和StatusBar
+     */
+    private fun hideActionStatusBar() {
+        //set no title bar 需要在setContentView之前调用
+        requestWindowFeature(Window.FEATURE_NO_TITLE)
+        //如果上面的不起作用，可以换成下面的。
+        if (supportActionBar != null) supportActionBar!!.hide()
+        if (actionBar != null) actionBar!!.hide()
+        //no status bar
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_FULLSCREEN,
+            WindowManager.LayoutParams.FLAG_FULLSCREEN
+        )
+    }
+
+    /**
+     * 隐藏 NavigationBar和StatusBar
+     */
+    private fun hideBottomStatusBar() {
+        //隐藏虚拟按键，并且全屏
+        // lower api
+        val v: View = this.window.decorView
+        v.systemUiVisibility = View.GONE
     }
 }

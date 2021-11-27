@@ -7,11 +7,17 @@ import static com.github.qingmei2.opengl_demo.LoadShaderKt.loadShaderWithResourc
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import android.opengl.Matrix;
+import android.util.Log;
 
 import androidx.annotation.DrawableRes;
+import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 
 import com.github.qingmei2.opengl_demo.R;
@@ -32,6 +38,18 @@ import javax.microedition.khronos.opengles.GL10;
 @SuppressWarnings("FieldCanBeLocal")
 public class C06Image3DProcessor implements ImageProcessor {
 
+    private static final float SCALE_BACK_GROUND = 1.2f;    // 背景缩放
+    private static final float SCALE_MID_GROUND = 1.0f;     // 中景不变
+    private static final float SCALE_FORE_GROUND = 1.1f;    // 前景缩放
+
+    private static final float MAX_VISIBLE_SIDE_FOREGROUND = 1.04f;
+    private static final float MAX_VISIBLE_SIDE_BACKGROUND = 1.1f;
+
+    private static final float USER_X_AXIS_STANDARD = -45f;
+    private static final float USER_Y_AXIS_STANDARD = 0f;
+    private static final float MAX_TRANS_DEGREE_X = 25f;   // XY轴最大旋转角度
+    private static final float MAX_TRANS_DEGREE_Y = 45f;   // XY轴最大旋转角度
+
     @NonNull
     private final Context mContext;
 
@@ -43,8 +61,8 @@ public class C06Image3DProcessor implements ImageProcessor {
             1.0f, 1.0f
     };
 
-    // 背景层-纹理坐标
-    private final float[] backTextureData = new float[]{
+    //纹理坐标
+    private final float[] mTextureData = new float[]{
             0.0f, 1.0f,
             1.0f, 1.0f,
             0.0f, 0.0f,
@@ -55,6 +73,15 @@ public class C06Image3DProcessor implements ImageProcessor {
     private final FloatBuffer mVertexBuffer;
     @NonNull
     private final FloatBuffer mBackTextureBuffer;
+    @NonNull
+    private final FloatBuffer mMidTextureBuffer;
+    @NonNull
+    private final FloatBuffer mFrontTextureBuffer;
+
+    private float[] mProjectionMatrix = new float[16];
+    private float[] mBackMatrix = new float[16];
+    private float[] mMidMatrix = new float[16];
+    private float[] mFrontMatrix = new float[16];
 
     private int mProgram;
     private int avPosition;
@@ -65,6 +92,45 @@ public class C06Image3DProcessor implements ImageProcessor {
     private int mMidTextureId;
     private int mFrontTextureId;
 
+    private final SensorManager mSensorManager;
+    private final Sensor mAcceleSensor;
+    private final Sensor mMagneticSensor;
+
+    private float[] mAcceleValues = new float[16];
+    private float[] mMageneticValues = new float[16];
+
+    private final SensorEventListener mSensorEventListener = new SensorEventListener() {
+        @Override
+        public void onSensorChanged(SensorEvent event) {
+            if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+                mAcceleValues = lowPass(event.values.clone(), mAcceleValues);
+            }
+            if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+                mMageneticValues = lowPass(event.values.clone(), mMageneticValues);
+            }
+
+            float[] values = new float[3];
+            float[] R = new float[9];
+            SensorManager.getRotationMatrix(R, null, mAcceleValues, mMageneticValues);
+            SensorManager.getOrientation(R, values);
+            // x轴的偏转角度
+            float degreeX = (float) Math.toDegrees(values[1]);
+            // y轴的偏转角度
+            float degreeY = (float) Math.toDegrees(values[2]);
+            // z轴的偏转角度
+            float degreeZ = (float) Math.toDegrees(values[0]);
+
+            Log.d("qingmei2", "x轴偏转角度 = " + degreeX + " , y轴偏转角度 = " + degreeY + ", z轴 = " + degreeZ);
+
+            updateMatrix(degreeX, degreeY);
+        }
+
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+        }
+    };
+
     public C06Image3DProcessor(@NonNull Context context) {
         this.mContext = context;
         //初始化buffer
@@ -74,11 +140,30 @@ public class C06Image3DProcessor implements ImageProcessor {
                 .put(vertexData);
         mVertexBuffer.position(0);
 
-        mBackTextureBuffer = ByteBuffer.allocateDirect(backTextureData.length * 4)
+        mBackTextureBuffer = ByteBuffer.allocateDirect(mTextureData.length * 4)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer()
-                .put(backTextureData);
+                .put(mTextureData);
         mBackTextureBuffer.position(0);
+
+        mMidTextureBuffer = ByteBuffer.allocateDirect(mTextureData.length * 4)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer()
+                .put(mTextureData);
+        mMidTextureBuffer.position(0);
+
+        mFrontTextureBuffer = ByteBuffer.allocateDirect(mTextureData.length * 4)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer()
+                .put(mTextureData);
+        mFrontTextureBuffer.position(0);
+
+        // 注册传感器
+        mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+        mAcceleSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mMagneticSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        mSensorManager.registerListener(mSensorEventListener, mAcceleSensor, SensorManager.SENSOR_DELAY_GAME);
+        mSensorManager.registerListener(mSensorEventListener, mMagneticSensor, SensorManager.SENSOR_DELAY_GAME);
     }
 
     @Override
@@ -111,6 +196,79 @@ public class C06Image3DProcessor implements ImageProcessor {
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         //设置大小位置
         GLES20.glViewport(0, 0, width, height);
+
+        Matrix.setIdentityM(mProjectionMatrix, 0);
+
+//        // 计算宽高比
+//        boolean isVertical = width < height;
+//        float ratio = (float) width / (float) height;
+//
+//        // 根据横竖屏，设置场景(全屏)
+//        if (isVertical) {
+//            Matrix.orthoM(mProjectionMatrix, 0, -1f, 1f, -1f / ratio, 1f / ratio, -1f, 1f);
+//        } else {
+//            Matrix.orthoM(mProjectionMatrix, 0, -ratio, ratio, -1f, 1f, -1f, 1f);
+//        }
+    }
+
+    /**
+     * 陀螺仪数据回调，更新各个层级的变换矩阵.
+     *
+     * @param degreeX x轴旋转角度，图片应该上下移动
+     * @param degreeY y轴旋转角度，图片应该左右移动
+     */
+    private void updateMatrix(@FloatRange(from = -180.0f, to = 180.0f) float degreeX,
+                              @FloatRange(from = -180.0f, to = 180.0f) float degreeY) {
+        // 用户的使用习惯, Y轴一般是 0f，X轴一般是 -45f
+        degreeX -= USER_X_AXIS_STANDARD;
+        degreeY -= USER_Y_AXIS_STANDARD;
+
+        if (degreeX > MAX_TRANS_DEGREE_X) {
+            degreeX = MAX_TRANS_DEGREE_X;
+        }
+        if (degreeX < -MAX_TRANS_DEGREE_X) {
+            degreeX = -MAX_TRANS_DEGREE_X;
+        }
+        if (degreeY > MAX_TRANS_DEGREE_Y) {
+            degreeY = MAX_TRANS_DEGREE_Y;
+        }
+        if (degreeY < -MAX_TRANS_DEGREE_Y) {
+            degreeY = -MAX_TRANS_DEGREE_Y;
+        }
+
+//        Log.d("qingmei2", "x轴偏转角度 = " + degreeX + " , y轴偏转角度 = " + degreeY);
+//        Log.d("qingmei2", "maxTransXY = " + maxTransXY + ", transX = " + transX + ", transY = " + transY);
+
+        // 背景变换
+        Matrix.setIdentityM(mBackMatrix, 0);
+
+        // 1.最大位移量
+//        float maxTransXY = MAX_VISIBLE_SIDE_BACKGROUND - 1f;
+//        // 2.本次的位移量
+//        float transX = ((maxTransXY) / MAX_TRANS_DEGREE_Y) * -degreeY;
+//        float transY = ((maxTransXY) / MAX_TRANS_DEGREE_X) * -degreeX;
+//        float[] backMatrix = new float[16];
+//        Matrix.setIdentityM(backMatrix, 0);
+//        Matrix.translateM(backMatrix, 0, transX, transY, 0f);                    // 2.平移
+//        Matrix.scaleM(backMatrix, 0, SCALE_BACK_GROUND, SCALE_BACK_GROUND, 1f);  // 1.缩放
+//        Matrix.multiplyMM(mBackMatrix, 0, mProjectionMatrix, 0, backMatrix, 0);  // 3.正交投影
+
+        // 中景变换
+        Matrix.setIdentityM(mMidMatrix, 0);
+
+        // 前景变换
+        Matrix.setIdentityM(mFrontMatrix, 0);
+
+        // 1.最大位移量
+//        maxTransXY = MAX_VISIBLE_SIDE_FOREGROUND - 1f;
+//        // 2.本次的位移量
+//        transX = ((maxTransXY) / MAX_TRANS_DEGREE_Y) * -degreeY;
+//        transY = ((maxTransXY) / MAX_TRANS_DEGREE_X) * -degreeX;
+//        float[] frontMatrix = new float[16];
+//        Matrix.setIdentityM(frontMatrix, 0);
+//        Matrix.translateM(frontMatrix, 0, -transX, -transY - 0.10f, 0f);         // 2.平移
+//        Matrix.scaleM(frontMatrix, 0, SCALE_FORE_GROUND, SCALE_FORE_GROUND, 1f);    // 1.缩放
+//        Matrix.multiplyMM(mFrontMatrix, 0, mProjectionMatrix, 0, frontMatrix, 0);  // 3.正交投影
     }
 
     @Override
@@ -120,9 +278,9 @@ public class C06Image3DProcessor implements ImageProcessor {
 
         GLES20.glUseProgram(mProgram);
 
-        this.drawLayerInner(mBackTextureId);
-        this.drawLayerInner(mMidTextureId);
-        this.drawLayerInner(mFrontTextureId);
+        this.drawLayerInner(mBackTextureId, mBackTextureBuffer, mBackMatrix);
+        this.drawLayerInner(mMidTextureId, mMidTextureBuffer, mMidMatrix);
+        this.drawLayerInner(mFrontTextureId, mFrontTextureBuffer, mFrontMatrix);
     }
 
     private void texImageInner(@DrawableRes int drawableRes, int textureId) {
@@ -143,20 +301,29 @@ public class C06Image3DProcessor implements ImageProcessor {
         bitmap.recycle();
     }
 
-    private void drawLayerInner(int textureId) {
+    private void drawLayerInner(int textureId, FloatBuffer textureBuffer, float[] matrix) {
         //绑定纹理
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
 
-        final float[] projection = new float[16];
-        Matrix.setIdentityM(projection, 0);
-        GLES20.glUniformMatrix4fv(uMatrixLocation, 1, false, projection, 0);
+        GLES20.glUniformMatrix4fv(uMatrixLocation, 1, false, matrix, 0);
 
         GLES20.glEnableVertexAttribArray(avPosition);
         GLES20.glVertexAttribPointer(avPosition, 2, GLES20.GL_FLOAT, false, 8, mVertexBuffer);
 
         GLES20.glEnableVertexAttribArray(afPosition);
-        GLES20.glVertexAttribPointer(afPosition, 2, GLES20.GL_FLOAT, false, 8, mBackTextureBuffer);
+        GLES20.glVertexAttribPointer(afPosition, 2, GLES20.GL_FLOAT, false, 8, textureBuffer);
 
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
+    }
+
+    static final float ALPHA = 0.25f;
+
+    protected float[] lowPass(float[] input, float[] output) {
+        if (output == null) return input;
+
+        for (int i = 0; i < input.length; i++) {
+            output[i] = output[i] + ALPHA * (input[i] - output[i]);
+        }
+        return output;
     }
 }
