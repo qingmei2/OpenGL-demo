@@ -40,15 +40,15 @@ public class C06Image3DProcessor implements ImageProcessor {
 
     private static final float SCALE_BACK_GROUND = 1.1f;    // 背景缩放
     private static final float SCALE_MID_GROUND = 1.0f;     // 中景不变
-    private static final float SCALE_FORE_GROUND = 1.06f;    // 前景缩放
+    private static final float SCALE_FORE_GROUND = 1.06f;   // 前景缩放
 
     private static final float MAX_VISIBLE_SIDE_FOREGROUND = 1.04f;
     private static final float MAX_VISIBLE_SIDE_BACKGROUND = 1.06f;
 
     private static final float USER_X_AXIS_STANDARD = -45f;
     private static final float USER_Y_AXIS_STANDARD = 0f;
-    private static final float MAX_TRANS_DEGREE_X = 25f;   // XY轴最大旋转角度
-    private static final float MAX_TRANS_DEGREE_Y = 45f;   // XY轴最大旋转角度
+    private static final float MAX_TRANS_DEGREE_X = 25f;   // X轴最大旋转角度
+    private static final float MAX_TRANS_DEGREE_Y = 45f;   // Y轴最大旋转角度
 
     @NonNull
     private final Context mContext;
