@@ -38,12 +38,12 @@ import javax.microedition.khronos.opengles.GL10;
 @SuppressWarnings("FieldCanBeLocal")
 public class C06Image3DProcessor implements ImageProcessor {
 
-    private static final float SCALE_BACK_GROUND = 1.2f;    // 背景缩放
+    private static final float SCALE_BACK_GROUND = 1.1f;    // 背景缩放
     private static final float SCALE_MID_GROUND = 1.0f;     // 中景不变
-    private static final float SCALE_FORE_GROUND = 1.1f;    // 前景缩放
+    private static final float SCALE_FORE_GROUND = 1.06f;    // 前景缩放
 
     private static final float MAX_VISIBLE_SIDE_FOREGROUND = 1.04f;
-    private static final float MAX_VISIBLE_SIDE_BACKGROUND = 1.1f;
+    private static final float MAX_VISIBLE_SIDE_BACKGROUND = 1.06f;
 
     private static final float USER_X_AXIS_STANDARD = -45f;
     private static final float USER_Y_AXIS_STANDARD = 0f;
@@ -72,11 +72,7 @@ public class C06Image3DProcessor implements ImageProcessor {
     @NonNull
     private final FloatBuffer mVertexBuffer;
     @NonNull
-    private final FloatBuffer mBackTextureBuffer;
-    @NonNull
-    private final FloatBuffer mMidTextureBuffer;
-    @NonNull
-    private final FloatBuffer mFrontTextureBuffer;
+    private final FloatBuffer mTextureBuffer;
 
     private float[] mProjectionMatrix = new float[16];
     private float[] mBackMatrix = new float[16];
@@ -140,23 +136,11 @@ public class C06Image3DProcessor implements ImageProcessor {
                 .put(vertexData);
         mVertexBuffer.position(0);
 
-        mBackTextureBuffer = ByteBuffer.allocateDirect(mTextureData.length * 4)
+        mTextureBuffer = ByteBuffer.allocateDirect(mTextureData.length * 4)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer()
                 .put(mTextureData);
-        mBackTextureBuffer.position(0);
-
-        mMidTextureBuffer = ByteBuffer.allocateDirect(mTextureData.length * 4)
-                .order(ByteOrder.nativeOrder())
-                .asFloatBuffer()
-                .put(mTextureData);
-        mMidTextureBuffer.position(0);
-
-        mFrontTextureBuffer = ByteBuffer.allocateDirect(mTextureData.length * 4)
-                .order(ByteOrder.nativeOrder())
-                .asFloatBuffer()
-                .put(mTextureData);
-        mFrontTextureBuffer.position(0);
+        mTextureBuffer.position(0);
 
         // 注册传感器
         mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
@@ -236,39 +220,36 @@ public class C06Image3DProcessor implements ImageProcessor {
             degreeY = -MAX_TRANS_DEGREE_Y;
         }
 
-//        Log.d("qingmei2", "x轴偏转角度 = " + degreeX + " , y轴偏转角度 = " + degreeY);
-//        Log.d("qingmei2", "maxTransXY = " + maxTransXY + ", transX = " + transX + ", transY = " + transY);
-
         // 背景变换
-        Matrix.setIdentityM(mBackMatrix, 0);
+//        Matrix.setIdentityM(mBackMatrix, 0);
 
         // 1.最大位移量
-//        float maxTransXY = MAX_VISIBLE_SIDE_BACKGROUND - 1f;
-//        // 2.本次的位移量
-//        float transX = ((maxTransXY) / MAX_TRANS_DEGREE_Y) * -degreeY;
-//        float transY = ((maxTransXY) / MAX_TRANS_DEGREE_X) * -degreeX;
-//        float[] backMatrix = new float[16];
-//        Matrix.setIdentityM(backMatrix, 0);
-//        Matrix.translateM(backMatrix, 0, transX, transY, 0f);                    // 2.平移
-//        Matrix.scaleM(backMatrix, 0, SCALE_BACK_GROUND, SCALE_BACK_GROUND, 1f);  // 1.缩放
-//        Matrix.multiplyMM(mBackMatrix, 0, mProjectionMatrix, 0, backMatrix, 0);  // 3.正交投影
+        float maxTransXY = MAX_VISIBLE_SIDE_BACKGROUND - 1f;
+        // 2.本次的位移量
+        float transX = ((maxTransXY) / MAX_TRANS_DEGREE_Y) * -degreeY;
+        float transY = ((maxTransXY) / MAX_TRANS_DEGREE_X) * -degreeX;
+        float[] backMatrix = new float[16];
+        Matrix.setIdentityM(backMatrix, 0);
+        Matrix.translateM(backMatrix, 0, transX, transY, 0f);                    // 2.平移
+        Matrix.scaleM(backMatrix, 0, SCALE_BACK_GROUND, SCALE_BACK_GROUND, 1f);  // 1.缩放
+        Matrix.multiplyMM(mBackMatrix, 0, mProjectionMatrix, 0, backMatrix, 0);  // 3.正交投影
 
         // 中景变换
         Matrix.setIdentityM(mMidMatrix, 0);
 
         // 前景变换
-        Matrix.setIdentityM(mFrontMatrix, 0);
+//        Matrix.setIdentityM(mFrontMatrix, 0);
 
         // 1.最大位移量
-//        maxTransXY = MAX_VISIBLE_SIDE_FOREGROUND - 1f;
-//        // 2.本次的位移量
-//        transX = ((maxTransXY) / MAX_TRANS_DEGREE_Y) * -degreeY;
-//        transY = ((maxTransXY) / MAX_TRANS_DEGREE_X) * -degreeX;
-//        float[] frontMatrix = new float[16];
-//        Matrix.setIdentityM(frontMatrix, 0);
-//        Matrix.translateM(frontMatrix, 0, -transX, -transY - 0.10f, 0f);         // 2.平移
-//        Matrix.scaleM(frontMatrix, 0, SCALE_FORE_GROUND, SCALE_FORE_GROUND, 1f);    // 1.缩放
-//        Matrix.multiplyMM(mFrontMatrix, 0, mProjectionMatrix, 0, frontMatrix, 0);  // 3.正交投影
+        maxTransXY = MAX_VISIBLE_SIDE_FOREGROUND - 1f;
+        // 2.本次的位移量
+        transX = ((maxTransXY) / MAX_TRANS_DEGREE_Y) * -degreeY;
+        transY = ((maxTransXY) / MAX_TRANS_DEGREE_X) * -degreeX;
+        float[] frontMatrix = new float[16];
+        Matrix.setIdentityM(frontMatrix, 0);
+        Matrix.translateM(frontMatrix, 0, -transX, -transY - 0.10f, 0f);         // 2.平移
+        Matrix.scaleM(frontMatrix, 0, SCALE_FORE_GROUND, SCALE_FORE_GROUND, 1f);    // 1.缩放
+        Matrix.multiplyMM(mFrontMatrix, 0, mProjectionMatrix, 0, frontMatrix, 0);  // 3.正交投影
     }
 
     @Override
@@ -278,9 +259,9 @@ public class C06Image3DProcessor implements ImageProcessor {
 
         GLES20.glUseProgram(mProgram);
 
-        this.drawLayerInner(mBackTextureId, mBackTextureBuffer, mBackMatrix);
-        this.drawLayerInner(mMidTextureId, mMidTextureBuffer, mMidMatrix);
-        this.drawLayerInner(mFrontTextureId, mFrontTextureBuffer, mFrontMatrix);
+        this.drawLayerInner(mBackTextureId, mTextureBuffer, mBackMatrix);
+        this.drawLayerInner(mMidTextureId, mTextureBuffer, mMidMatrix);
+        this.drawLayerInner(mFrontTextureId, mTextureBuffer, mFrontMatrix);
     }
 
     private void texImageInner(@DrawableRes int drawableRes, int textureId) {
