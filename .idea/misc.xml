@@ -3,7 +3,10 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/myProjects/OpenGLdemo/app/src/main/res/layout/activity_d_01.xml" value="0.1" />
         <entry key="..\:/myProjects/OpenGLdemo/app/src/main/res/layout/activity_image_process_main.xml" value="0.1" />
+        <entry key="..\:/myProjects/OpenGLdemo/app/src/main/res/layout/activity_main.xml" value="0.1" />
+        <entry key="..\:/myProjects/OpenGLdemo/app/src/main/res/layout/activity_video_d01.xml" value="0.27219202898550726" />
       </map>
     </option>
   </component>
