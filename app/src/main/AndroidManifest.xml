@@ -29,6 +29,8 @@
 
         <activity android:name=".c_image_process.ImageProcessDetailActivity" />
         <activity android:name=".c_image_process.ImageProcessMainActivity" />
+
+        <activity android:name=".d_zhongqiu.ZQMediaPlayerActivity" />
     </application>
 
 </manifest>
