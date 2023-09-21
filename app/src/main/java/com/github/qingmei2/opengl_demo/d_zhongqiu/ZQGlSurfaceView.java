@@ -18,6 +18,5 @@ public class ZQGlSurfaceView extends GLSurfaceView {
 
     private void init(Context context) {
         setEGLContextClientVersion(2);
-        setRenderer(new ZQRenderer(context));
     }
 }

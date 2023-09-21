@@ -4,6 +4,7 @@ import static android.opengl.GLES20.GL_ONE_MINUS_SRC_ALPHA;
 import static android.opengl.GLES20.GL_SRC_ALPHA;
 import static com.github.qingmei2.opengl_demo.LoadShaderKt.loadShaderWithResource;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,6 +16,8 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLUtils;
 import android.opengl.Matrix;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
 import androidx.annotation.DrawableRes;
@@ -37,10 +40,10 @@ import javax.microedition.khronos.opengles.GL10;
 public class ZQRenderer implements GLSurfaceView.Renderer {
 
     private static final float SCALE_BACK_GROUND = 1.1f;    // 背景缩放
-    private static final float SCALE_MID_GROUND = 1.0f;     // 中景不变
+    private static final float SCALE_MOON_GROUND = 1.0f;    // 月亮缩放
     private static final float SCALE_FORE_GROUND = 1.06f;   // 前景缩放
 
-    private static final float MAX_VISIBLE_SIDE_FOREGROUND = 1.04f;
+    private static final float MAX_VISIBLE_SIDE_FOREGROUND = 1.08f;
     private static final float MAX_VISIBLE_SIDE_BACKGROUND = 1.06f;
 
     private static final float USER_X_AXIS_STANDARD = -45f;
@@ -71,7 +74,17 @@ public class ZQRenderer implements GLSurfaceView.Renderer {
     private float[] mCoverMatrix = new float[16];
     private float[] mFrontMatrix = new float[16];
 
+    // 封面图旋转一圈的时间，单位秒.
+    private static final long ROTATE_TIME = 20L;
+    public static final long DELAY_INTERVAL = 1000 / (360 / ROTATE_TIME);
+
+    // 当前封面图的旋转角度，歌曲播放时，应该不断旋转.
+    @FloatRange(from = 0f, to = 360f)
+    private float mCoverDegree;
+    // 用户当前设备的偏转角度
+    @FloatRange(from = -180.0f, to = 180.0f)
     private float mCurDegreeX;
+    @FloatRange(from = -180.0f, to = 180.0f)
     private float mCurDegreeY;
 
     private int mProgram;
@@ -81,7 +94,7 @@ public class ZQRenderer implements GLSurfaceView.Renderer {
 
     // 底层-蓝色背景纹理
     private int mBackTextureId;
-    // 下层-月亮图片纹理
+    // 背景-月亮图片纹理
     private int mMidTextureId;
     // 中层-音乐封面纹理
     private int mCoverTextureId;
@@ -94,6 +107,17 @@ public class ZQRenderer implements GLSurfaceView.Renderer {
 
     private float[] mAcceleValues = new float[16];
     private float[] mMageneticValues = new float[16];
+
+    @SuppressLint("HandlerLeak")
+    Handler mTimerHandler = new Handler() {
+
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            mCoverDegree = (mCoverDegree + 1) % 360;
+            sendMessageDelayed(Message.obtain(), DELAY_INTERVAL);
+        }
+    };
 
     private final SensorEventListener mSensorEventListener = new SensorEventListener() {
         @Override
@@ -142,6 +166,8 @@ public class ZQRenderer implements GLSurfaceView.Renderer {
         mMagneticSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         mSensorManager.registerListener(mSensorEventListener, mAcceleSensor, SensorManager.SENSOR_DELAY_GAME);
         mSensorManager.registerListener(mSensorEventListener, mMagneticSensor, SensorManager.SENSOR_DELAY_GAME);
+
+        mTimerHandler.sendMessageDelayed(Message.obtain(), DELAY_INTERVAL);
     }
 
     @Override
@@ -201,6 +227,11 @@ public class ZQRenderer implements GLSurfaceView.Renderer {
         }
     }
 
+    public void onDestroy() {
+        this.mTimerHandler.removeCallbacksAndMessages(null);
+        this.mTimerHandler = null;
+    }
+
     /**
      * 陀螺仪数据回调，更新各个层级的变换矩阵.
      *
@@ -245,20 +276,31 @@ public class ZQRenderer implements GLSurfaceView.Renderer {
         Matrix.scaleM(backMatrix, 0, SCALE_BACK_GROUND, SCALE_BACK_GROUND, 1f);  // 1.缩放
         Matrix.multiplyMM(mBackMatrix, 0, mBgProjectionMatrix, 0, backMatrix, 0);  // 3.正交投影
 
-        //  ----------  中景-月亮  ----------
+        //  ----------  背景 -月亮  ----------
         Matrix.setIdentityM(mMoonMatrix, 0);
         float[] midMatrix = new float[16];
         Matrix.setIdentityM(midMatrix, 0);
-        Matrix.scaleM(midMatrix, 0, 1.0f, 1.0f, 1.0f);  // 1.缩放
-        Matrix.multiplyMM(mMoonMatrix, 0, mMoonProjectionMatrix, 0, midMatrix, 0);  // 2.正交投影
+//        Matrix.translateM(midMatrix, 0, transX, transY, 0f);                      // 2.平移，这行注释解开后，手机摇一摇，封面图和月亮也会有位移偏差.
+        Matrix.scaleM(midMatrix, 0, SCALE_MOON_GROUND, SCALE_MOON_GROUND, 1.0f);  // 1.缩放
+        Matrix.multiplyMM(mMoonMatrix, 0, mMoonProjectionMatrix, 0, midMatrix, 0);  // 3.正交投影
 
         // ---------  中景-歌曲封面  ----------
         Matrix.setIdentityM(mCoverMatrix, 0);
+        float[] rotateMatrix = new float[16];
+        float[] tranAndScale = new float[16];
         float[] coverMatrix = new float[16];
+
+        Matrix.setIdentityM(rotateMatrix, 0);
+        Matrix.setIdentityM(tranAndScale, 0);
         Matrix.setIdentityM(coverMatrix, 0);
-        Matrix.translateM(coverMatrix, 0, 0.03f, 0.81f, 0f);    // 2.平移,这里的位移参数是开发时，即时调整的，保证歌曲封面和月亮的center位置在一起
-        Matrix.scaleM(coverMatrix, 0, 0.58f, 0.58f, 1.0f);      // 1.缩放,这里的缩放参数是开发时，即时调整的，保证歌曲封面和月亮的大小一致
-        Matrix.multiplyMM(mCoverMatrix, 0, mCoverProjectionMatrix, 0, coverMatrix, 0);  // 2.正交投影
+
+        Matrix.scaleM(tranAndScale, 0, 0.565f, 0.58f, 1.0f);                   // 3.缩放,这里的缩放参数是开发时，即时调整的，保证歌曲封面和月亮的大小一致
+        Matrix.translateM(tranAndScale, 0, 0.05f, 1.41f, 0f);                 // 2.平移,这里的位移参数是开发时，即时调整的，保证歌曲封面和月亮的center位置在一起
+
+        Matrix.setRotateM(rotateMatrix, 0, 360 - mCoverDegree, 0.0f, 0.0f, 1.0f);    // 1.旋转，顺时针
+
+        Matrix.multiplyMM(coverMatrix, 0, tranAndScale, 0, rotateMatrix, 0);
+        Matrix.multiplyMM(mCoverMatrix, 0, mCoverProjectionMatrix, 0, coverMatrix, 0);  // 4.正交投影
 
         //  ----------  前景-装饰  ----------
         Matrix.setIdentityM(mFrontMatrix, 0);
@@ -269,7 +311,7 @@ public class ZQRenderer implements GLSurfaceView.Renderer {
         transY = ((maxTransXY) / MAX_TRANS_DEGREE_X) * -mCurDegreeX;
         float[] frontMatrix = new float[16];
         Matrix.setIdentityM(frontMatrix, 0);
-        Matrix.translateM(frontMatrix, 0, -transX, -transY - 0.10f, 0f);         // 2.平移
+        Matrix.translateM(frontMatrix, 0, -transX, -transY, 0f);         // 2.平移
         Matrix.scaleM(frontMatrix, 0, SCALE_FORE_GROUND, SCALE_FORE_GROUND, 1f);    // 1.缩放
         Matrix.multiplyMM(mFrontMatrix, 0, mMoonProjectionMatrix, 0, frontMatrix, 0);  // 3.正交投影
     }
@@ -284,8 +326,8 @@ public class ZQRenderer implements GLSurfaceView.Renderer {
         this.updateMatrix();
 
         this.drawLayerInner(mBackTextureId, mTextureBuffer, mBackMatrix);
-        this.drawLayerInner(mCoverTextureId, mTextureBuffer, mCoverMatrix);
         this.drawLayerInner(mMidTextureId, mTextureBuffer, mMoonMatrix);
+        this.drawLayerInner(mCoverTextureId, mTextureBuffer, mCoverMatrix);
         this.drawLayerInner(mFrontTextureId, mTextureBuffer, mFrontMatrix);
     }
 

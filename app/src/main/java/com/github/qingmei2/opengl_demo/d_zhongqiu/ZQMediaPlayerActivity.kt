@@ -4,12 +4,10 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.github.qingmei2.opengl_demo.R
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.Player
 
 
 /**
@@ -26,13 +24,18 @@ class ZQMediaPlayerActivity : AppCompatActivity() {
     }
 
     private lateinit var player: ExoPlayer
+
     private lateinit var surfaceView: ZQGlSurfaceView
+    private lateinit var renderer: ZQRenderer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_media_player_main)
 
+        renderer = ZQRenderer(this)
         surfaceView = findViewById(R.id.surface_view)
+        surfaceView.setRenderer(renderer)
+
 
         player = ExoPlayer.Builder(this).build()
 
@@ -45,6 +48,7 @@ class ZQMediaPlayerActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        renderer.onDestroy()
         player.release()
     }
 }
