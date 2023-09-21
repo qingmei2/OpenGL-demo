@@ -37,7 +37,7 @@
         android:id="@+id/btn_04"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="4、基本视频渲染"
+        android:text="4、中秋节"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btn_03" />

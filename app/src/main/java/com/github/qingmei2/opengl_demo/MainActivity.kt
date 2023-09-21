@@ -6,7 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.github.qingmei2.opengl_demo.a_shape.ShapeMainActivity
 import com.github.qingmei2.opengl_demo.b_animation.AnimMainActivity
 import com.github.qingmei2.opengl_demo.c_image_process.ImageProcessMainActivity
-import com.github.qingmei2.opengl_demo.d_video.VideoMainActivity
+import com.github.qingmei2.opengl_demo.d_zhongqiu.ZQMediaPlayerActivity
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,7 +23,7 @@ class MainActivity : AppCompatActivity() {
             ImageProcessMainActivity.launch(this)
         }
         findViewById<View>(R.id.btn_04).setOnClickListener {
-            VideoMainActivity.launch(this)
+            ZQMediaPlayerActivity.launch(this)
         }
     }
 }
