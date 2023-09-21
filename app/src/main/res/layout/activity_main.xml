@@ -28,7 +28,7 @@
         android:id="@+id/btn_03"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="3、简单图片处理"
+        android:text="3、基本图像处理"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btn_02" />
