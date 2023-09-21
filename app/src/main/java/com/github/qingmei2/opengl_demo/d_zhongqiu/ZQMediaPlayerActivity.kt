@@ -17,8 +17,6 @@ import com.google.android.exoplayer2.Player
  */
 class ZQMediaPlayerActivity : AppCompatActivity() {
 
-    private lateinit var player: ExoPlayer
-
     companion object {
 
         fun launch(context: Context) {
@@ -27,9 +25,14 @@ class ZQMediaPlayerActivity : AppCompatActivity() {
         }
     }
 
+    private lateinit var player: ExoPlayer
+    private lateinit var surfaceView: ZQGlSurfaceView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_media_player_main)
+
+        surfaceView = findViewById(R.id.surface_view)
 
         player = ExoPlayer.Builder(this).build()
 
